@@ -2,6 +2,14 @@
 <h4>Created by Sbeve#4701</h4>
 <h4>Thanks Breeze0505#0744 for helping out!</h4>
 
+ 
+# Disclaimers and limitations
+<h4>Due to minehut's limitations on what we can do, and us wanting to play it safe there are some limitations to ExternalDash.</h4>
+<li> ExternalDash doesn't exit automatically when the server goes down.</li>
+<li> You have to specify a polling time in the index.js file. We recommend every 5 seconds, which is the default. </li>
+<li> Keep in mind by using ExternalDash, you are responsible if you get blocked from minehut. </li>
+<li> We have never seen someone get blocked by using ExternalDash, but do keep in mind it's possible especially if you lower the polling time. </li>
+
 # Functions
  <h4>Currently Active</h4>
  <br>
@@ -18,13 +26,6 @@
  <li> &nbsp; Upload Scripts</li>
  <br>
  <li> &nbsp; Add/Remove Plugins</li>
- 
-# Disclaimers and limitations
-<h4>Due to minehut's limitations on what we can do, and us wanting to play it safe there are some limitations to ExternalDash.</h4>
-<li> ExternalDash doesn't exit automatically when the server goes down.</li>
-<li> You have to specify a polling time in the index.js file. We recommend every 5 seconds, which is the default. </li>
-<li> Keep in mind by using ExternalDash, you are responsible if you get blocked from minehut. </li>
-<li> We have never seen someone get blocked by using ExternalDash, but do keep in mind it's possible especially if you lower the polling time. </li>
 
  # Installation
  <h4>Make sure you are logged in to your minehut account and are using Google Chrome browser before following the steps listed below</h4>
