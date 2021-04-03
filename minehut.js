@@ -703,11 +703,13 @@ exports.file = {
             return
         }
 
-        if (authorizedOnly(reject) == false) {
+        if (authorizedOnly(promiseReject) == false) {
             return
         }
 
-        exports.requestAuthorized('/file/' + server + '/list/' + dir, 'POST')
+        exports.requestAuthorized('/file/' + server + '/list' + dir, 'GET').then(dir => {
+            promiseResolve(dir.files)
+        }).catch(promiseReject)
 
         return promise
     },
