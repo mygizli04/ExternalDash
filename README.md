@@ -1,4 +1,4 @@
-# ExternalDash
+# ExternalDash <img src='https://media.discordapp.net/attachments/822820765737025577/827931529681961000/Flame3.png' width='50' height='60'></img>
 <h4>Created by Sbeve#4701</h4>
 <h4>Thanks Breeze0505#0744 for helping out!</h4>
 
