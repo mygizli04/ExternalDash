@@ -37,7 +37,7 @@
   <img src=https://user-images.githubusercontent.com/42012824/113481874-13f4de80-94ad-11eb-8632-c0e9b9a5f687.png></img>
   <h4>Go to the address https://minehut.com/dashboard/home while in the developer tools menu</h4>
   <li> If you are not already logged in, log in to your account, and then **refresh the page**.  </li>
-  <h4>Right click on any file you can see.</h4>
+  <h4>Right click on any file on the scren, it doesnt matter which one.</h4>
   <h4>Proceed to click on "Save all as HAR with content</h4>
   <img src=https://user-images.githubusercontent.com/42012824/113482035-d17fd180-94ad-11eb-968d-969c1d8bbae5.png></img>
   <h4>And make sure to name the file "minehut.har"</h4>
