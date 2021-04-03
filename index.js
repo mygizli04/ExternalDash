@@ -1,7 +1,7 @@
 const fs = require('fs')
 const chalk = require('chalk')
 var minehut = {};
-const pollingInterval = 5; //I never had a problem with 1, but if you want to be safe you can use 5 instead to be safe.
+const pollingInterval = 0.1; //I never had a problem with 1, but if you want to be safe you can use 5 instead to be safe.
 
 if (pollingInterval < 5) {
     console.log(chalk.yellowBright("Warning: The polling interval has been set to less than 5. We haven't seen anyone getting blocked from using this software, but keep in mind we make no guarantees."))
@@ -139,52 +139,54 @@ function Start() {
         }
 
         function onlineCheck() {
-            if (servers[selected].active_server_plan_details.max_plugins < servers[selected].active_plugins.length) {
-                console.error(chalk.redBright("You have more plugins than your plan supports. Please remove plugins or buy a server plan."))
-                process.exit(1)
+            if (servers[selected].server_plan == "FREE") {
+                if (servers[selected].active_plugins.length > 12) {
+                    console.error(chalk.redBright("You have more plugins than your plan supports. Please remove plugins or buy a server plan."))
+                    process.exit(1)
+                }
             }
-                if (!servers[selected].online) {
-                process.stdout.write("The server is currently not online, would you like to turn it on? (Y/N) ")
-                if (process.stdin.isTTY) {
-                    process.stdin.once('data', answer => {
-                        answer = answer.toString().trim().toUpperCase()
-                        if (answer === "N") {
-                            console.error(chalk.redBright("Aborted."))
-                            process.exit(1)
-                        }
-                        else if (answer === "Y") {
-                            console.log(chalk.yellowBright("Starting the server..."))
-                            if (!servers[selected].service_online) {
-                                servers[selected].startService().then(res => {
-                                    colorStart('orange')
-                                    console.log(res)
-                                    colorEnd()
-                                    startLog()
-                                })
+                    if (!servers[selected].online) {
+                    process.stdout.write("The server is currently not online, would you like to turn it on? (Y/N) ")
+                    if (process.stdin.isTTY) {
+                        process.stdin.once('data', answer => {
+                            answer = answer.toString().trim().toUpperCase()
+                            if (answer === "N") {
+                                console.error(chalk.redBright("Aborted."))
+                                process.exit(1)
+                            }
+                            else if (answer === "Y") {
+                                console.log(chalk.yellowBright("Starting the server..."))
+                                if (!servers[selected].service_online) {
+                                    servers[selected].startService().then(res => {
+                                        colorStart('orange')
+                                        console.log(res)
+                                        colorEnd()
+                                        startLog()
+                                    })
+                                }
+                                else {
+                                    servers[selected].start().then(res => {
+                                        colorStart('orange')
+                                        console.log(res)
+                                        colorEnd()
+                                        startLog()
+                                    })
+                                }
                             }
                             else {
-                                servers[selected].start().then(res => {
-                                    colorStart('orange')
-                                    console.log(res)
-                                    colorEnd()
-                                    startLog()
-                                })
+                                console.error("That is not a valid answer.")
+                                process.exit(1)
                             }
-                        }
-                        else {
-                            console.error("That is not a valid answer.")
-                            process.exit(1)
-                        }
-                    })
+                        })
+                    }
+                    else {
+                        console.error("No tty detected. Assuming no.")
+                        process.exit(2)
+                    }
                 }
                 else {
-                    console.error("No tty detected. Assuming no.")
-                    process.exit(2)
-                }
-            }
-            else {
-                startLog()
-            }}
+                    startLog()
+                }}
 
         function startLog() {
             console.log(chalk.greenBright("Connected!"))
