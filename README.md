@@ -28,16 +28,22 @@
  <li> &nbsp; Add/Remove Plugins</li>
 
  # Installation
- <h4>Make sure you are logged in to your minehut account and are using Google Chrome browser before following the steps listed below</h4>
+ <h4>Make sure you are logged in to your minehut account and are using Google Chrome (or Google Chrome based) browser before following the steps listed below</h4>
  <br>
   <h4>Open a new tab in google, right click on the page and click "inspect"</h4>
+  ![image](https://user-images.githubusercontent.com/42012824/113481844-f45db600-94ac-11eb-8c92-96e6915c65b1.png)
   <h4>At the top of the UI tap "Network"</h4>
-  <h4>Go to the address https://minehut.com/dashboard/home while in the developer tools menu (inspect/f12)</h4>
-  <h4>Make sure you are logged in before going to this page, if so right click on any file that shows under the network tab and tab</h4>
+  ![image](https://user-images.githubusercontent.com/42012824/113481874-13f4de80-94ad-11eb-8632-c0e9b9a5f687.png)
+  <h4>Go to the address https://minehut.com/dashboard/home while in the developer tools menu</h4>
+  <li> If you are not already logged in, log in to your account, and then **refresh the page**.  </li>
+  <h4>Right click on any file you can see.</h4>
   <h4>Proceed to click on "Save all as HAR with content</h4>
+  ![image](https://user-images.githubusercontent.com/42012824/113482035-d17fd180-94ad-11eb-968d-969c1d8bbae5.png)
   <h4>And make sure to name the file "minehut.har"</h4>
-  <h4>Drag this file into your folder</h4>
-  <h4>Now go to the website https://nodejs.org/en/download/ and download node js</h4>
-  <h4>Once installed, open cmd promt and change directory into your folder</h4>
-  <h4>Start the script with "node index.js", you can start this with a batch file also</h4>
-  <h3>The har files will outdate themselves eventually and you will have to redo these steps</h3>
+  <h4>Download the project from above and unzip it on your desktop.</h4>
+  ![image](https://user-images.githubusercontent.com/42012824/113482087-0be96e80-94ae-11eb-92df-0f43ac68f1ac.png)
+  <h4>Drag minehut.har into the project folder</h4>
+  <h4>Now navigate to https://nodejs.org/en/download/ and download node.js</h4>
+  <h4>Once installed, open terminal (or a command prompt) and cd into the project folder. (Tip: Type "cd", leave a space, and drag and drop the folder into the window)</h4>
+  <h4>Start the script by typing "node index.js" into the console and pressing enter, you can also create a batch file to do this.</h4>
+  <h3>The har files will expire eventually due to minehut's limitations. If this happens, delete both "minehut.json" and "minehut.har" files from the project file, and re-do the steps involving your browser.</h3>
