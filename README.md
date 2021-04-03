@@ -48,5 +48,6 @@
   <h4>Drag minehut.har into the project folder</h4>
   <h4>Now navigate to https://nodejs.org/en/download/ and download node.js</h4>
   <h4>Once installed, open terminal (or a command prompt) and cd into the project folder. (Tip: Type "cd", leave a space, and drag and drop the folder into the window)</h4>
+  <h4>Once in the folder, run "npm i" in order to install the required modules.
   <h4>Start the script by typing "node index.js" into the console and pressing enter, you can also create a batch file to do this.</h4>
   <h3>The har files will expire eventually due to minehut's limitations. If this happens, delete both "minehut.json" and "minehut.har" files from the project file, and re-do the steps involving your browser.</h3>
