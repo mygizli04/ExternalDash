@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+#Authentication files
+minehut.har
+minehut.json
+
+#logs
+logs/
+sentlogs/
