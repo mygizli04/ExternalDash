@@ -19,6 +19,7 @@
  <br>
  <li>&nbsp; Run Console Commands</li>
  <br>
+ <li>&nbsp; Saves logs (While client online) to the logs folder</li>
  <h4>Adding In the Future</h4>
  <br>
  <li> &nbsp; Download Logs</li>
