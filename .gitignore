@@ -110,3 +110,6 @@ minehut.json
 #logs
 logs/
 sentlogs/
+
+#vscode
+.vscode
