@@ -346,6 +346,8 @@ function Start() {
                                         catch (err) {
                                             //I'm a great programmer!
                                         }
+                                        console.log(chalk.yellowBright("WARNING: Due to a bug, files containing the dash symbol (-)'s in file names get replaced with underscores(_) "))
+                                        console.log(chalk.yellowBright('So, "-skript.sk" would become "_skript.sk"'))
                                         console.log("Which skript(s) would you like to upload?")                                        
                                         console.log("[0] All of them")
                                         console.log("[1] Every enabled one")
