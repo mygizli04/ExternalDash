@@ -301,7 +301,28 @@ function Start() {
                                                             })
                                                         })
                                                     default:
+                                                        let file = dir[input - 3]
+                                                        if (fs.existsSync('./skripts/' + file)) {
+                                                            console.log(chalk.yellowBright("Warning: The file you're trying to download already exists. If it is older than 1 day it will be moved into a seperate folder, or else it will be updated."))
 
+                                                            if (fs.statSync('./skripts/' + file).mtime.getTime() < new Date().getTime() - 86400000) {
+                                                                console.log("Archiving " + file)
+                                                                fs.rename('./skripts/' + file, './skriptArchive/' + file, (err) => {
+                                                                    if (err) {
+                                                                        console.error(chalk.redBright("An error occured moving files!\n\n") + err)
+                                                                    }
+                                                                })
+                                                            }
+                                                            else {
+                                                                console.log("Replacing " + file)
+                                                            }
+                                                        }
+
+                                                        minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
+                                                            fs.writeFileSync('./skripts/' + file, skript.content)
+                                                            console.log("Downloaded " + file)
+                                                            process.exit(0)
+                                                        })
                                                 }
                                             })
                                         })
