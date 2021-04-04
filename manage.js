@@ -183,8 +183,6 @@ function Start() {
                     listOptions()
                 }}
 
-                const readlineSync = require('readline-sync') // Lifesaver.
-
                 function listOptions() {
                     //Only Skript for now
                     console.log("What would you like to do?")
