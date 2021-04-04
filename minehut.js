@@ -716,7 +716,12 @@ exports.file = {
         }
 
         exports.requestAuthorized('/file/' + server + '/list' + dir, 'GET').then(dir => {
-            promiseResolve(dir.files)
+            if (dir.error) {
+                promiseReject(dir.error)
+            }
+            else {
+                promiseResolve(dir.files)
+            }
         }).catch(promiseReject)
 
         return promise

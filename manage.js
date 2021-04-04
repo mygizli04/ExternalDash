@@ -455,12 +455,31 @@ function Start() {
                                                         })
                                                     break
                                                     case 2:
-                                                        console.log("Are you sure? This will make the skripts folder on minehut be the same as the folder on minehut.")
                                                         console.log(chalk.redBright("THIS MIGHT DELETE SKRIPT FILES FROM THE SKRIPTS FOLDER."))
+                                                        process.stdout.write("Are you sure? This will make the skripts folder on minehut be the same as the folder on minehut. (Y/N) ")
                                                         waitForInput(input => input.toUpperCase().trim() === "Y" || input.toUpperCase().trim() === "N").then(input => {
-                                                            switch (input.toUpperCase.trim()) {
+                                                            switch (input.toUpperCase().trim()) {
                                                                 case "Y":
+                                                                    fs.rm('./skripts/', {recursive: true}, (err) => {
+                                                                        if (err) {
+                                                                            console.log(chalk.yellowBright("A non-fatal error occured, but it can be ignored."))
+                                                                        }
 
+                                                                        fs.mkdirSync('./skripts')
+
+                                                                        minehut.file.listDir(servers[selected]._id, "/plugins/Skript/scripts").then(dir => {
+                                                                            dir.forEach((value,index,array) => array[index] = value.name)
+                                                                            dir = dir.filter(value => value.endsWith(".sk"))
+
+                                                                            dir.forEach(file => {
+                                                                                minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
+                                                                                    fs.writeFileSync('./skripts/' + file, skript.content, {flag: 'a'})
+                                                                                    console.log("Downloaded " + file)
+                                                                                    if (file == dir[dir.length - 1]) process.exit(0)
+                                                                                })
+                                                                            })
+                                                                        })
+                                                                    })
                                                                 break
                                                                 case "N":
                                                                     console.log("Aborted")
