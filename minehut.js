@@ -29,6 +29,8 @@ exports.requestRaw = async function (path, method, headers, body) {
         body = JSON.stringify(body)
     }
 
+    console.log(apiURL + path)
+
     request(apiURL + path, {method: method, headers: headers, body: body} , (err, res, body) => {
         if (err) {
             promiseReject(err)
@@ -215,7 +217,7 @@ function addOwnedServerFuncs(object, id) {
 
 var promiseReject;
 
-exports.requestAuthorized = async function (path, method, body) {
+exports.requestAuthorized = async function (path, method, body, headers) {
     var promiseReject
     var promise = new Promise((resolve, reject) => {
         promiseReject = reject
@@ -225,10 +227,16 @@ exports.requestAuthorized = async function (path, method, body) {
         return promise;
     }
 
-    headers = {
-        'authorization': iauthorization,
-        'x-session-id': ixSessionID,
-        'Content-Type': 'application/json'
+    if (!headers) {
+        headers = {
+            'authorization': iauthorization,
+            'x-session-id': ixSessionID,
+            'Content-Type': 'application/json'
+        }
+    }
+    else {
+        headers.authorization = iauthorization
+        headers["x-session-id"] = ixSessionID
     }
 
     if (!path) {
@@ -840,6 +848,10 @@ exports.file = {
 
         return promise
     },
+
+    uploadFile: async function (server, localFile, remotePath) {
+        return exports.uploadFile(localFile ,'/file/upload/' + server + '/' + remotePath)
+    }
 }
 
 function addFileFuncs(object, path, server) {
@@ -922,4 +934,21 @@ exports.loginWithHAR = async function (file) {
     }
 
     return promise
+}
+
+exports.uploadFile = async function (localPath, remotePath) {
+    console.log("uploading " + localPath + " to " + remotePath)
+    return new Promise((resolve, reject) => {
+        request.post(apiURL + remotePath, {headers: {
+            'authorization': iauthorization,
+            'x-session-id': ixSessionID,
+        }}, (err, res, body) => {
+            if (err) {
+                reject(err)
+            }
+            else {
+                resolve(JSON.parse(body))
+            }
+        }).form().append('file', fs.createReadStream(localPath))
+    })
 }

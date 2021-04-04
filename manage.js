@@ -31,7 +31,8 @@ Object.freeze(minehut) //I hate scopes so much.
             minehutLogin = require('./minehut.json')
         }
         catch (err) {
-            console.error(chalk.redBright("Your minehut.json file is invalid!"))
+            console.error(chalk.redBright("Your minehut.json file is invalid! Please try again."))
+            fs.rmSync('./minehut.json')
             debugger
             console.error(err)
             process.exit(1)
@@ -145,7 +146,7 @@ function Start() {
                     process.exit(1)
                 }
             }
-                    if (!servers[selected].online) {
+                    if (!servers[selected].service_online) {
                     process.stdout.write("The server is currently not online, would you like to turn it on? (Y/N) ")
                         process.stdin.once('data', answer => {
                             answer = answer.toString().trim().toUpperCase()
@@ -204,7 +205,7 @@ function Start() {
                                         catch (err) {
                                             //I'm a great programmer!
                                         }
-                                        console.log("Which skript would you like to download?")                                        
+                                        console.log("Which skript(s) would you like to download?")                                        
                                         console.log("[0] All of them")
                                         console.log("[1] Every enabled one")
                                         console.log("[2] Only ones i don't have")
@@ -272,9 +273,15 @@ function Start() {
                                                                 if (file == dir[dir.length - 1]) process.exit(0)
                                                             })
                                                         })
+                                                        break
                                                     case 2:
-                                                        dir.forEach((file, index, array) => {if (fs.existsSync('./skripts/' + file)) {array.splice(index, 1)}})
+                                                        dir = dir.filter(file => !fs.existsSync('./skripts/' + file))
+                                                        if (dir.length === 0) {
+                                                            console.error("There aren't any files to download.")
+                                                            process.exit(1)
+                                                        }
                                                         var warned = false;
+                                                        var downloadCount = 0;
                                                         dir.forEach(file => {
                                                             if (fs.existsSync('./skripts/' + file)) {
                                                                 if (!warned) {
@@ -297,9 +304,13 @@ function Start() {
                                                             minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
                                                                 fs.writeFileSync('./skripts/' + file, skript.content)
                                                                 console.log("Downloaded " + file)
-                                                                if (file == dir[dir.length - 1]) process.exit(0)
+                                                                downloadCount++
+                                                                if (downloadCount == dir.length) {
+                                                                    process.exit(0)
+                                                                }
                                                             })
                                                         })
+                                                        break
                                                     default:
                                                         let file = dir[input - 3]
                                                         if (fs.existsSync('./skripts/' + file)) {
@@ -326,8 +337,72 @@ function Start() {
                                                 }
                                             })
                                         })
+                                        break
                                     case 2:
-
+                                        try {
+                                            fs.mkdirSync('./skripts')
+                                            fs.mkdirSync('./skriptArchive')
+                                        }
+                                        catch (err) {
+                                            //I'm a great programmer!
+                                        }
+                                        console.log("Which skript(s) would you like to upload?")                                        
+                                        console.log("[0] All of them")
+                                        console.log("[1] Every enabled one")
+                                        console.log("[2] Only ones that aren't uploaded already")
+                                        var dir = fs.readdirSync('./skripts')
+                                        dir.forEach((file, index, array) => {if (!file.endsWith(".sk")) array.splice(index, 1)})
+                                        dir.forEach((file, index) => console.log("[" + (index + 3) + "] " + file))
+                                        waitForInput(input => 0 <= input <= dir.length + 2).then(input => {
+                                            input = parseInt(input)
+                                            switch (input) {
+                                                case 0:
+                                                    dir.forEach((file, index) => {
+                                                        minehut.file.uploadFile(servers[selected]._id, './skripts/' + file,"/plugins/Skript/scripts/" + file).then(res => {
+                                                            console.log(res)
+                                                            if (index == dir.length - 1) {
+                                                                process.exit(0)
+                                                            }
+                                                        })
+                                                    })
+                                                    break
+                                                case 1:
+                                                    dir.forEach((file,index,array) => {if (file.startsWith("-")) {array.splice(index, 1)}})
+                                                    dir.forEach((file, index) => {
+                                                        minehut.file.uploadFile(servers[selected]._id, './skripts/' + file,"/plugins/Skript/scripts/" + file).then(res => {
+                                                            console.log(res)
+                                                            if (index == dir.length - 1) {
+                                                                process.exit(0)
+                                                            }
+                                                        })
+                                                    })
+                                                    break
+                                                case 2:
+                                                    minehut.file.listDir(servers[selected]._id, '/plugins/Skript/scripts').then(remoteDir => {
+                                                        remoteDir.forEach((dir,index,array) => array[index] = dir.name)
+                                                        dir = dir.filter((file) => !remoteDir.includes(file))
+                                                        if (dir.length == 0) {
+                                                            console.error(chalk.redBright("No files to upload!"))
+                                                            process.exit(1)
+                                                        }
+                                                        dir.forEach((file, index) => {
+                                                            minehut.file.uploadFile(servers[selected]._id, './skripts/' + file,"/plugins/Skript/scripts/" + file).then(res => {
+                                                                console.log(res)
+                                                                if (index == dir.length - 1) {
+                                                                    process.exit(0)
+                                                                }
+                                                            })
+                                                        })
+                                                    })
+                                                    break
+                                                default:
+                                                    minehut.file.uploadFile(servers[selected]._id, './skripts/' + dir[input - 3], '/plugins/Skript/scripts/' + dir[input - 3]).then(() => {
+                                                        console.log("Done!")
+                                                        process.exit(0)
+                                                    })
+                                            }
+                                        })
+                                        break
                                 }
                             })
                         }
