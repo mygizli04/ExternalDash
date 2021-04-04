@@ -155,7 +155,7 @@ function Start() {
                                 process.exit(1)
                             }
                             else if (answer === "Y") {
-                                console.log(chalk.yellowBright("Starting the server..."))
+                                console.log(chalk.yellowBright("Starting the server...\nKeep in mind minehut takes a few seconds to actually make the files available, so we recommend waiting a few seconds before proceeding."))
                                 if (!servers[selected].service_online) {
                                     servers[selected].startService().then(res => {
                                         colorStart('orange')
@@ -194,7 +194,8 @@ function Start() {
                             console.log("Would you like to download skripts or upload them?")
                             console.log("[1] Download")
                             console.log("[2] Upload")
-                            waitForInput(data => 1 <= data <= 2).then(data => {
+                            console.log("[3] Sync")
+                            waitForInput(data => 1 <= data <= 3).then(data => {
                                 data = parseInt(data)
                                 switch (data) {
                                     case 1:
@@ -404,6 +405,72 @@ function Start() {
                                                     })
                                             }
                                         })
+                                        break
+                                        case 3:
+                                            console.log("[1] Sync minehut with local directory (Deletes files on minehut)")
+                                            console.log("[2] Sync local directory with minehut (Deletes local files)")
+                                            waitForInput(input => 1 <= input <= 2).then(input => {
+                                                input = parseInt(input)
+                                                switch (input) {
+                                                    case 1:
+                                                        console.log(chalk.redBright("THIS WILL DELETE SKRIPTS ON MINEHUT."))
+                                                        process.stdout.write("Are you sure? This will make the skript folder on minehut be the same as the skripts folder. (Y/N) ")
+                                                        waitForInput(input => input.toUpperCase().trim() === "Y" || input.toUpperCase().trim() === "N").then(input => {
+                                                            switch (input.toUpperCase().trim()) {
+                                                                case "Y":
+                                                                    minehut.file.listDir(servers[selected]._id, "/plugins/Skript/scripts").then(dir => {
+                                                                        dir.forEach(file => {
+                                                                            if (file.name.endsWith(".sk")) {
+                                                                                minehut.file.deleteFile(servers[selected]._id, "/plugins/Skript/scripts/" + file.name).then(res => {
+                                                                                    console.log(res)
+                                                                                })
+                                                                            }
+                                                                        })
+                                                                        fs.readdir('./skripts', (err, dir) => {
+                                                                            if (err) {
+                                                                                console.error(err)
+                                                                                process.exit(1)
+                                                                            }
+
+                                                                            dir = dir.filter(value => value.endsWith(".sk"))
+
+                                                                            var uploaded = 0
+                                                                            dir.forEach(file => {
+                                                                                minehut.file.uploadFile(servers[selected]._id, "./skripts/" + file, "/plugins/Skript/scripts/" + file).then(res => {
+                                                                                    console.log(res)
+                                                                                    uploaded++
+                                                                                    if (uploaded == dir.length) {
+                                                                                        process.exit(0)
+                                                                                    }
+                                                                                })
+                                                                            })
+                                                                        })
+                                                                    })
+                                                                break
+                                                                case "N":
+                                                                    console.log("Aborted")
+                                                                    process.exit(1)
+                                                                break
+                                                            }
+                                                        })
+                                                    break
+                                                    case 2:
+                                                        console.log("Are you sure? This will make the skripts folder on minehut be the same as the folder on minehut.")
+                                                        console.log(chalk.redBright("THIS MIGHT DELETE SKRIPT FILES FROM THE SKRIPTS FOLDER."))
+                                                        waitForInput(input => input.toUpperCase().trim() === "Y" || input.toUpperCase().trim() === "N").then(input => {
+                                                            switch (input.toUpperCase.trim()) {
+                                                                case "Y":
+
+                                                                break
+                                                                case "N":
+                                                                    console.log("Aborted")
+                                                                    process.exit(1)
+                                                                break
+                                                            }
+                                                        })
+                                                    break
+                                                }
+                                            })
                                         break
                                 }
                             })

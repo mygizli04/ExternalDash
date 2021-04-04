@@ -810,11 +810,11 @@ exports.file = {
             return
         }
 
-        if (authorizedOnly(reject) == false) {
+        if (authorizedOnly(promiseReject) == false) {
             return
         }
 
-        exports.requestAuthorized('/file/' + server + '/delete/' + file, 'POST')
+        exports.requestAuthorized('/file/' + server + '/delete/' + file, 'POST').then(promiseResolve)
 
         return promise
     },
@@ -837,20 +837,28 @@ exports.file = {
             return
         }
 
-        if (authorizedOnly(reject) == false) {
+        if (authorizedOnly(promiseReject) == false) {
             return
         }
 
         exports.requestAuthorized('/file/' + server + '/folder/create', 'POST', {
             "name": name,
             "directory": dir
-        })
+        }).then(promiseResolve)
 
         return promise
     },
 
     uploadFile: async function (server, localFile, remotePath) {
         return exports.uploadFile(localFile ,'/file/upload/' + server + '/' + remotePath)
+    },
+
+    deleteFolder: async function (server, path) {
+        path = path.split("/")
+        payload = {name: path[path.length - 1]}
+        path.splice(path.length - 1, 1)
+        payload.directory = path.join("")
+        return exports.requestAuthorized("/file/" + server + "/folder/delete", "POST", payload)
     }
 }
 
