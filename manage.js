@@ -596,7 +596,61 @@ function Start() {
                                                     })
                                                 break
                                                 case 3:
+                                                    servers[selected].plugins().then(plugins => {
+                                                        plugins = plugins.plugins
+                                                        var installedPlugins = []
+                                                        plugins.forEach(plugin => {
+                                                            if (plugin.state === 'ACTIVE') {
+                                                                installedPlugins.push(plugin)
+                                                            }
+                                                        })
 
+                                                        if (installedPlugins.length === 0) {
+                                                            console.error("You have no plugins installed.")
+                                                            process.exit(1)
+                                                        }
+
+                                                        console.log("[0] All of them")
+
+                                                        installedPlugins.forEach((plugin, index) => {
+                                                            console.log("[" + (index + 1) + "] " + plugin.name)
+                                                        })
+
+                                                        waitForInput(input => {return 0 <= input <= installedPlugins.length}, "Which plugin would you like to reset? ").then(input => {
+                                                            input = parseInt(input.trim())
+                                                            if (input === 0) {
+                                                                waitForInput(input => {return (input.trim().toUpperCase() == "Y") || (input.trim().toUpperCase() == "N")}, "Are you sure? " + chalk.redBright("THIS WILL REMOVE ALL YOUR PLUGIN DATA") + " (Y/N) ").then(input => {
+                                                                    input = input.trim().toUpperCase()
+                                                                    if (input === "Y") {
+                                                                        var deletedPlugins = 0
+                                                                        installedPlugins.forEach(plugin => {
+                                                                            minehut.server.removePluginData(servers[selected]._id, plugin._id).then(res => {
+                                                                            console.log(res)
+                                                                            deletedPlugins++
+                                                                            if (deletedPlugins === installedPlugins.length) {
+                                                                                console.log("Done!")
+                                                                                process.exit(0)
+                                                                            }
+                                                                            })
+                                                                        })
+                                                                    }
+                                                                    else {
+                                                                        console.log(chalk.redBright("Aborted."))
+                                                                        process.exit(1)
+                                                                    }       
+                                                                })
+                                                            }
+                                                            else {
+                                                                waitForInput(input => {return (input.trim().toUpperCase() == "Y") || (input.trim().toUpperCase() == "N")}, "Are you sure? " + chalk.redBright("THIS WILL REMOVE ALL YOUR DATA AND CONFIGURATIONS OF " + installedPlugins[input - 1].name) + " (Y/N) ").then(answer => {
+                                                                    minehut.server.removePluginData(servers[selected]._id, installedPlugins[input - 1]._id).then(res => {
+                                                                        console.log(res)
+                                                                        console.log("Done!")
+                                                                        process.exit(0)
+                                                                    })
+                                                                })
+                                                            }
+                                                        })
+                                                    })
                                                 break
                                                 case 4:
 
