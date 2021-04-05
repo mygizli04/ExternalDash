@@ -120,3 +120,6 @@ skriptArchive
 
 #macOS's and their DS_Store files, i will never understand them.
 .DS_Store
+
+#Plugins
+plugins
