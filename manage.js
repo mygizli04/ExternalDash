@@ -497,6 +497,7 @@ function Start() {
                                     })
                                     break
                                     case 2:
+                                        console.log(chalk.yellowBright("UNDER CONSTRUCTION"))
                                         console.log("[1] Install Plugin")
                                         console.log("[2] Remove plugin")
                                         console.log("[3] Reset plugin")
@@ -541,7 +542,30 @@ function Start() {
                                                 break
                                                 case 2:
                                                     servers[selected].plugins().then(plugins => {
-                                                        console.log(res)
+                                                        var installedPlugins = []
+                                                        plugins.forEach(plugin => {
+                                                            if (plugin.state === 'ACTIVE') {
+                                                                installedPlugins.push(plugin)
+                                                            }
+                                                        })
+
+                                                        if (installedPlugins.length === 0) {
+                                                            console.error("You have no plugins installed.")
+                                                            process.exit(1)
+                                                        }
+
+                                                        console.log("[0] All of them")
+
+                                                        installedPlugins.forEach((plugin, index) => {
+                                                            console.log("[" + (index + 1) + "] " + plugin.name)
+                                                        })
+
+                                                        waitForInput(input => {return 0 <= input <= installedPlugins.length}, "Which plugin would you like to uninstall?").then(input => {
+                                                            input = parseInt(input.trim())
+                                                            if (input === 0) {
+                                                                waitForInput(input => {return (input.trim().toUpperCase() == "Y") || (input.trim().toUpperCase() == "N")}, "Are you sure? " + chalk.redBright("THIS WILL REMOVE ALL YOUR PLUGINS"))
+                                                            }
+                                                        })
                                                     })
                                                 break
                                                 case 3:
