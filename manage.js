@@ -585,6 +585,13 @@ function Start() {
                                                                     }       
                                                                 })
                                                             }
+                                                            else {
+                                                                minehut.server.removePlugin(servers[selected]._id, installedPlugins[input - 1]._id).then(res => {
+                                                                    console.log(res)
+                                                                    console.log("Done!")
+                                                                    process.exit(0)
+                                                                })
+                                                            }
                                                         })
                                                     })
                                                 break
