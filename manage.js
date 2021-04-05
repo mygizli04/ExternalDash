@@ -727,3 +727,38 @@ async function waitForInput(check, string) { //Woo hoo literally only async func
     })
 }
 
+function downloadRecursively(localpath, remotepath, server) { //Horrible approach time! Woo hoo!
+    var fileQueue = []
+    var dirQueue = []
+
+    function recurse(cd) { // I sure do hope you don't have a lot of files :(
+        fileQueue.forEach(file => {
+            minehut.file.readFile(server, remotepath + cd).then(contents => {
+                fs.writeFile(localpath + cd, contents, (err) => {
+                    if (err) {
+                        console.error("Error writing file!\n\n" + err)
+                        process.exit(1)
+                    }
+                })
+            })
+        })
+
+        fileQueue = []
+
+        minehut.file.listDir(server, remotepath + cd).then(dir => {
+            dir.forEach(file => {
+                if (file.directory) {
+                    dirQueue.push(cd + file.name)
+                }
+
+                if (!file.directory && !file.blocked) {
+                    fileQueue.push(cd + file.name)
+                }
+            })
+
+            recurse(dirQueue.splice(0, 1))
+        })
+    }
+
+    recurse("/")
+}
