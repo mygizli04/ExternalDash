@@ -184,7 +184,6 @@ function Start() {
                 }}
 
                 function listOptions() {
-                    const openExplorer = require('open-file-explorer')
                     //Only Skript for now
                     console.log("What would you like to do?")
                     console.log("[1] Skript")
@@ -503,7 +502,7 @@ function Start() {
                                         console.log("[2] Remove plugin")
                                         console.log("[3] Reset plugin")
                                         console.log("[4] Configure plugin")
-                                        waitForInput(input => {return 1 <= input <= 4}).then(input => {
+                                        waitForInput(input => 1 <= input <= 4).then(input => {
                                             input = parseInt(input)
                                             switch (input) {
                                                 case 1:
@@ -654,29 +653,7 @@ function Start() {
                                                     })
                                                 break
                                                 case 4:
-                                                    minehut.file.listDir(servers[selected]._id, "/plugins").then(files => {
-                                                        files = files.filter(file => {return !file.blocked})
-                                                        files = files.filter(file => {return file.directory})
-                                                        console.log("Which folder would you like to open?\n[0] All of them")
-                                                        files.forEach((file,index) => {
-                                                            console.log("[" + (index + 1) + "] " + file.name)
-                                                        })
-                                                        waitForInput(input => {return 0 <= input <= files.length}).then(input => {
-                                                            input = parseInt(input.trim())
-                                                            if (input === 0) {
-                                                                fs.mkdir("./plugins", (err) => {
-                                                                    if (err) {
-                                                                        console.log(chalk.yellowBright("A non-fatal error occured, but it can be ignored."))
-                                                                    }
 
-                                                                    downloadRecursively("./plugins", "/plugins", servers[selected]._id)
-                                                                })
-                                                            }
-                                                            else {
-
-                                                            }
-                                                        })
-                                                    })
                                                 break
                                             }
                                         })
@@ -724,8 +701,6 @@ function colorEnd() {
     process.stdout.write("\x1B[39m")
 }
 
-//Extremely extremely extremely wrong in almost every way possible. Fails at its single job.
-//But imagine fixing stuff lmao
 async function waitForInput(check, string) { //Woo hoo literally only async function in the file how efficent
     if (string) {
         process.stdout.write(string)
@@ -745,63 +720,10 @@ async function waitForInput(check, string) { //Woo hoo literally only async func
                     })
                 }
                 else {
-                    if (!checkResult) {
-                        console.error(chalk.redBright("That is not a valid answer."))
-                        process.exit(1)
-                    }
-                    else {
-                        resolve(data)
-                    }
+                    resolve(data)
                 }
             }
         })
     })
 }
 
-function downloadRecursively(localpath, remotepath, serverID) {
-    return new Promise((resolve,reject) => {
-        var cd = ""
-        var cdQueue = ["/"]
-        var downloadQueue = []
-        function downloadagain() {
-            cd = cdQueue.splice(0, 1)[0]
-
-            minehut.file.listDir(serverID, remotepath + cd).then(dir => {
-                dir.forEach(file => {
-                    if (file.directory) {
-                        cdQueue.push(cd + file.name)                    
-                    }
-
-                    if (!file.blocked && !file.directory) {
-                        downloadQueue.push(cd + '/' + file.name)
-                    }
-                })
-
-                downloadQueue.forEach(filename => {
-                    minehut.file.readFile(serverID, remotepath + filename).then(file => {
-                        file = file.content
-                        {
-                            var tempfile = filename.split("/")
-                        }
-                        fs.writeFile(localpath + filename, file, (err) => {
-                            if (err) {
-                                debugger
-                                console.error("Error writing files!\n\n" + err)
-                                process.exit(1)
-                            }
-
-                            console.log("Downloaded " + localpath + remotepath)
-
-                        })
-                    })
-                })
-
-                if (cdQueue.length != 0 || downloadQueue.length != 0) {
-                    downloadagain()
-                } 
-            })
-        }
-        downloadagain()
-        resolve()
-    })
-}
