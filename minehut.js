@@ -29,8 +29,6 @@ exports.requestRaw = async function (path, method, headers, body) {
         body = JSON.stringify(body)
     }
 
-    console.log(apiURL + path)
-
     request(apiURL + path, {method: method, headers: headers, body: body} , (err, res, body) => {
         if (err) {
             promiseReject(err)
@@ -951,7 +949,6 @@ exports.loginWithHAR = async function (file) {
 }
 
 exports.uploadFile = async function (localPath, remotePath) {
-    console.log("uploading " + localPath + " to " + remotePath)
     return new Promise((resolve, reject) => {
         request.post(apiURL + remotePath, {headers: {
             'authorization': iauthorization,

@@ -540,7 +540,9 @@ function Start() {
                                                     })
                                                 break
                                                 case 2:
-
+                                                    servers[selected].plugins().then(plugins => {
+                                                        console.log(res)
+                                                    })
                                                 break
                                                 case 3:
 
