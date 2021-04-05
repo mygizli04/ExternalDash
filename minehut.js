@@ -593,17 +593,18 @@ exports.fetchPublicPlugins = async function () {
         exports.requestRaw('/plugins_public').then(res => {
             res.all.forEach((value, index, array) => {
                 array[index].install = function (server) {
-                    exports.server.installPlugin(server, value._id)
+                    return exports.server.installPlugin(server, value._id)
                 }
 
                 array[index].remove = function (server) {
-                    exports.server.removePlugin(server, value._id)
+                    return exports.server.removePlugin(server, value._id)
                 }
 
                 array[index].removeData = function (server) {
-                    exports.server.removePlugin(server, value._id)
+                    return exports.server.removePlugin(server, value._id)
                 }
             })
+            promiseResolve(res)
         }).catch(err => promiseReject(err))
 
         var promiseResolve
