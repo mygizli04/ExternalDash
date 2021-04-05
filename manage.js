@@ -542,6 +542,7 @@ function Start() {
                                                 break
                                                 case 2:
                                                     servers[selected].plugins().then(plugins => {
+                                                        plugins = plugins.plugins
                                                         var installedPlugins = []
                                                         plugins.forEach(plugin => {
                                                             if (plugin.state === 'ACTIVE') {
@@ -560,10 +561,29 @@ function Start() {
                                                             console.log("[" + (index + 1) + "] " + plugin.name)
                                                         })
 
-                                                        waitForInput(input => {return 0 <= input <= installedPlugins.length}, "Which plugin would you like to uninstall?").then(input => {
+                                                        waitForInput(input => {return 0 <= input <= installedPlugins.length}, "Which plugin would you like to uninstall? ").then(input => {
                                                             input = parseInt(input.trim())
                                                             if (input === 0) {
-                                                                waitForInput(input => {return (input.trim().toUpperCase() == "Y") || (input.trim().toUpperCase() == "N")}, "Are you sure? " + chalk.redBright("THIS WILL REMOVE ALL YOUR PLUGINS"))
+                                                                waitForInput(input => {return (input.trim().toUpperCase() == "Y") || (input.trim().toUpperCase() == "N")}, "Are you sure? " + chalk.redBright("THIS WILL REMOVE ALL YOUR PLUGINS") + " (Y/N) ").then(input => {
+                                                                    input = input.trim().toUpperCase()
+                                                                    if (input === "Y") {
+                                                                        var deletedPlugins = 0
+                                                                        installedPlugins.forEach(plugin => {
+                                                                            minehut.server.removePlugin(servers[selected]._id, plugin._id).then(res => {
+                                                                            console.log(res)
+                                                                            deletedPlugins++
+                                                                            if (deletedPlugins === installedPlugins.length) {
+                                                                                console.log("Done!")
+                                                                                process.exit(0)
+                                                                            }
+                                                                            })
+                                                                        })
+                                                                    }
+                                                                    else {
+                                                                        console.log(chalk.redBright("Aborted."))
+                                                                        process.exit(1)
+                                                                    }       
+                                                                })
                                                             }
                                                         })
                                                     })
