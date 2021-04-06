@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "chalk": "^4.1.0",
-    "open-file-explorer": "^1.0.2",
     "request": "^2.88.2"
   }
 }
