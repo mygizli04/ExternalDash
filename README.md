@@ -21,9 +21,9 @@
  <br>
  <li>&nbsp; Run Console Commands</li>
  <br>
- <li>&nbsp; Skript management (upload, download, sync)
+ <li>&nbsp; Skript management (upload, download, sync)</li>
  <br>
- <li>&nbsp; Plugin managemnt (download configs, install, remove, reset)
+ <li>&nbsp; Plugin managemnt (download configs, install, remove, reset)</li>
  <br>
  <li>&nbsp; Saves logs (While client online) to the logs folder</li>
 
