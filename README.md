@@ -21,14 +21,11 @@
  <br>
  <li>&nbsp; Run Console Commands</li>
  <br>
+ <li>&nbsp; Skript management (upload, download, sync)</li>
+ <br>
+ <li>&nbsp; Plugin managemnt (download configs, install, remove, reset)</li>
+ <br>
  <li>&nbsp; Saves logs (While client online) to the logs folder</li>
- <h4>Adding In the Future</h4>
- <br>
- <li> &nbsp; Download Logs</li>
- <br>
- <li> &nbsp; Upload Scripts</li>
- <br>
- <li> &nbsp; Add/Remove Plugins</li>
 
  # Installation
  <h4>Make sure you are logged in to your minehut account and are using Google Chrome (or Google Chrome based) browser before following the steps listed below</h4>
