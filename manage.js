@@ -497,11 +497,10 @@ function Start() {
                                     })
                                     break
                                     case 2:
-                                        console.log(chalk.yellowBright("UNDER CONSTRUCTION"))
                                         console.log("[1] Install Plugin")
                                         console.log("[2] Remove plugin")
                                         console.log("[3] Reset plugin")
-                                        console.log("[4] Configure plugin")
+                                        console.log("[4] Download plugin configs")
                                         waitForInput(input => 1 <= input <= 4).then(input => {
                                             input = parseInt(input)
                                             switch (input) {
@@ -673,7 +672,7 @@ function Start() {
                                                                     downloadRecursively("./plugins", "/plugins", servers[selected]._id)
                                                                 }
                                                                 else {
-
+                                                                    downloadRecursively("./plugins/" + dir[input - 1].name, "/plugins/" + dir[input - 1].name, servers[selected]._id)
                                                                 }
                                                             }
                                                             else {
@@ -755,6 +754,10 @@ async function waitForInput(check, string) { //Woo hoo literally only async func
     })
 }
 
+const openExplorer = require('open-file-explorer')
+
+var reRecurse = true
+
 function downloadRecursively(localpath, remotepath, server) { //Horrible approach time! Woo hoo!
     var fileQueue = []
     var dirQueue = []
@@ -798,14 +801,21 @@ function downloadRecursively(localpath, remotepath, server) { //Horrible approac
                 }
             })
 
-            if (dirQueue.length === 0) {
+            if (dirQueue.length === 0 && fileQueue.length === 0) {
                 console.log("Done!")
-                process.exit(0)
+                process.exit(0)   
             }
             else {
                 let seeDee = dirQueue.splice(0, 1)[0]
                 if (!seeDee) {
-                    debugger
+                    if (reRecurse) {
+                        reRecurse = false
+                        recurse(cd)
+                    }
+                    else {
+                        console.log("Done!")
+                        process.exit(0)
+                    }
                 }
                 else {
                     recurse(seeDee)
