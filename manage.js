@@ -825,5 +825,4 @@ function downloadRecursively(localpath, remotepath, server) { //Horrible approac
     }
 
     recurse("/")
-    console.log("Next func!")
 }
