@@ -653,7 +653,7 @@ function Start() {
                                                 break
                                                 case 4:
                                                     console.log("[1] Download configs")
-                                                    console.log("[2] Upload configs")
+                                                    console.log("[2] Upload configs " + chalk.yellowBright("NOT COMPLETE"))
                                                     waitForInput().then(input => {
                                                         input = parseInt(input.trim())
                                                         if (input === 1) {
@@ -854,7 +854,7 @@ function downloadRecursively(localpath, remotepath, server) { //Horrible approac
                     }
                     else {
                         console.log("Done!")
-                        process.exit(0)
+                        setTimeout(process.exit, 1000) // hahahaha i LOVE async (If you remove the timeout the process exits before final file writes are completed)
                     }
                 }
                 else {
@@ -876,29 +876,33 @@ function uploadRecursively(localpath, remotepath, server) { //Horrible approach 
             //console.log("Downloading " + file)
 
             //Iterate over fileQueue
-            fs.readdir(localpath + file).then(files => {
-                let uploadPath = (remotepath + file).split("/")
-                let uploadDir = uploadPath.join("/").replace(uploadPath[uploadPath.length - 1], "")
-                minehut.file.readDir(server, uploadDir).then(atTheEnd).catch(err => {
-                    let dirArray = (remotepath + file).split("/")
-                    let parentDir = dirArray.join("/").replace(dirArray[dirArray.length - 1], "")
-                    minehut.file.createFolder(server, parentDir, dirArray[dirArray.length - 1]).then(() => {
-                        atTheEnd()
-                    })
+            let uploadPath = (remotepath + file).split("/")
+            let uploadDir = uploadPath.join("/").replace(uploadPath[uploadPath.length - 1], "")
+            minehut.file.readDir(server, uploadDir).then(atTheEnd).catch(err => {
+                let dirArray = (remotepath + file).split("/")
+                let parentDir = dirArray.join("/").replace(dirArray[dirArray.length - 1], "")
+                minehut.file.createFolder(server, parentDir, dirArray[dirArray.length - 1]).then(() => {
+                    atTheEnd()
                 })
-
-                function atTheEnd() {
-                    minehut.uploadFile(localpath + file, remotepath + file)
-                }
             })
+
+            function atTheEnd() {
+                minehut.uploadFile(localpath + file, remotepath + file)
+            }
         })
 
         fileQueue = []
 
         //Queue files/dirs then recurse
-        fs.readdir(localpath + cd).then(dir => {
+        fs.readdir(localpath + cd, (err, dir) => {
+            if (err) {
+                debugger
+                console.error(err)
+                process.exit(1)
+            }
+
             dir.forEach(file => {
-                if (fs.lstatSync(file).isDirectory()) {
+                if (fs.lstatSync(localpath + '/' + file).isDirectory()) {
                     if (cd === "/") { //  ¯\_(ツ)_/¯
                         dirQueue.push(cd + file)
                     }
@@ -923,7 +927,7 @@ function uploadRecursively(localpath, remotepath, server) { //Horrible approach 
                         }
                         else {
                             console.log("Done!")
-                            process.exit(0)
+                            setTimeout(process.exit, 1000)
                         }
                     }
                     else {
