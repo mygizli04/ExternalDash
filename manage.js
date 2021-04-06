@@ -500,7 +500,7 @@ function Start() {
                                         console.log("[1] Install Plugin")
                                         console.log("[2] Remove plugin")
                                         console.log("[3] Reset plugin")
-                                        console.log("[4] Download plugin configs")
+                                        console.log("[4] Modify plugin configs")
                                         waitForInput(input => 1 <= input <= 4).then(input => {
                                             input = parseInt(input)
                                             switch (input) {
@@ -652,34 +652,76 @@ function Start() {
                                                     })
                                                 break
                                                 case 4:
-                                                    console.log("[0] All of them")
+                                                    console.log("[1] Download configs")
+                                                    console.log("[2] Upload configs")
+                                                    waitForInput().then(input => {
+                                                        input = parseInt(input.trim())
+                                                        if (input === 1) {
+                                                            console.log("[0] All of them")
 
-                                                    minehut.file.listDir(servers[selected]._id,"/plugins").then(dir => {
-                                                        dir = dir.filter(file => file.directory)
-                                                        dir.forEach((file, index) => {
-                                                            console.log("[" + (index + 1) + "] " + file.name)
-                                                        })
-                                                        waitForInput(null, "Which plugin would you like to configure? ").then(input => {
-                                                            input = isNumber(input)
-                                                            
-                                                            if (!input && input !== 0) {
-                                                                console.log("Invalid choice")
-                                                                process.exit(1)
-                                                            }
+                                                            minehut.file.listDir(servers[selected]._id,"/plugins").then(dir => {
+                                                                dir = dir.filter(file => file.directory)
+                                                                dir.forEach((file, index) => {
+                                                                    console.log("[" + (index + 1) + "] " + file.name)
+                                                                })
+                                                                waitForInput(null, "Which plugin would you like to download the configs for? ").then(input => {
+                                                                    input = isNumber(input)
+                                                                    
+                                                                    if (!input && input !== 0) {
+                                                                        console.log("Invalid choice")
+                                                                        process.exit(1)
+                                                                    }
+    
+                                                                    if (0 <= input <= dir.length) {
+                                                                        if (input === 0) {
+                                                                            downloadRecursively("./plugins", "/plugins", servers[selected]._id)
+                                                                        }
+                                                                        else {
+                                                                            downloadRecursively("./plugins/" + dir[input - 1].name, "/plugins/" + dir[input - 1].name, servers[selected]._id)
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        console.log("Invalid choice")
+                                                                        process.exit(1)
+                                                                    }
+                                                                })
+                                                            })
+                                                        }
+                                                        else if (input === 2) {
+                                                            console.log("[0] All of them")
 
-                                                            if (0 <= input <= dir.length) {
-                                                                if (input === 0) {
-                                                                    downloadRecursively("./plugins", "/plugins", servers[selected]._id)
-                                                                }
-                                                                else {
-                                                                    downloadRecursively("./plugins/" + dir[input - 1].name, "/plugins/" + dir[input - 1].name, servers[selected]._id)
-                                                                }
-                                                            }
-                                                            else {
-                                                                console.log("Invalid choice")
-                                                                process.exit(1)
-                                                            }
-                                                        })
+                                                            minehut.file.listDir(servers[selected]._id,"/plugins").then(dir => {
+                                                                dir = dir.filter(file => file.directory)
+                                                                dir.forEach((file, index) => {
+                                                                    console.log("[" + (index + 1) + "] " + file.name)
+                                                                })
+                                                                waitForInput(null, "Which plugin would you like to upload the configs for? ").then(input => {
+                                                                    input = isNumber(input)
+                                                                    
+                                                                    if (!input && input !== 0) {
+                                                                        console.log("Invalid choice")
+                                                                        process.exit(1)
+                                                                    }
+    
+                                                                    if (0 <= input <= dir.length) {
+                                                                        if (input === 0) {
+                                                                            uploadRecursively("./plugins", "/plugins", servers[selected]._id)
+                                                                        }
+                                                                        else {
+                                                                            uploadRecursively("./plugins/" + dir[input - 1].name, "/plugins/" + dir[input - 1].name, servers[selected]._id)
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        console.log("Invalid choice")
+                                                                        process.exit(1)
+                                                                    }
+                                                                })
+                                                            })
+                                                        }
+                                                        else {
+                                                            console.error(chalk.redBright("Invalid choice!"))
+                                                            process.exit(1)
+                                                        }
                                                     })
                                                 break
                                             }
@@ -754,8 +796,6 @@ async function waitForInput(check, string) { //Woo hoo literally only async func
     })
 }
 
-const openExplorer = require('open-file-explorer')
-
 var reRecurse = true
 
 function downloadRecursively(localpath, remotepath, server) { //Horrible approach time! Woo hoo!
@@ -825,4 +865,103 @@ function downloadRecursively(localpath, remotepath, server) { //Horrible approac
     }
 
     recurse("/")
+}
+
+function uploadRecursively(localpath, remotepath, server) { //Horrible approach time! Woo hoo!
+    var fileQueue = []
+    var dirQueue = []
+
+    function recurse(cd) { // I sure do hope you don't have a lot of files :(
+        fileQueue.forEach(file => {
+            //console.log("Downloading " + file)
+
+            //Iterate over fileQueue
+            fs.readdir(localpath + file).then(files => {
+                let uploadPath = (remotepath + file).split("/")
+                let uploadDir = uploadPath.join("/").replace(uploadPath[uploadPath.length - 1], "")
+                minehut.file.readDir(server, uploadDir).then(atTheEnd).catch(err => {
+                    let dirArray = (remotepath + file).split("/")
+                    let parentDir = dirArray.join("/").replace(dirArray[dirArray.length - 1], "")
+                    minehut.file.createFolder(server, parentDir, dirArray[dirArray.length - 1]).then(() => {
+                        atTheEnd()
+                    })
+                })
+
+                function atTheEnd() {
+                    minehut.uploadFile(localpath + file, remotepath + file)
+                }
+            })
+        })
+
+        fileQueue = []
+
+        //Queue files/dirs then recurse
+        fs.readdir(localpath + cd).then(dir => {
+            dir.forEach(file => {
+                if (fs.lstatSync(file).isDirectory()) {
+                    if (cd === "/") { //  ¯\_(ツ)_/¯
+                        dirQueue.push(cd + file)
+                    }
+                    else {
+                        dirQueue.push(cd + '/' + file)
+                    }
+                }
+                else if (isAllowed(file)) {
+                    fileQueue.push(cd + '/' + file)
+                }
+
+                if (dirQueue.length === 0 && fileQueue.length === 0) {
+                    console.log("Done!")
+                    process.exit(0)   
+                }
+                else {
+                    let seeDee = dirQueue.splice(0, 1)[0]
+                    if (!seeDee) {
+                        if (reRecurse) {
+                            reRecurse = false
+                            recurse(cd)
+                        }
+                        else {
+                            console.log("Done!")
+                            process.exit(0)
+                        }
+                    }
+                    else {
+                        recurse(seeDee)
+                    }
+                }
+            })
+        })
+    }
+
+    recurse("/")
+}
+
+/*
+.yml
+.json
+.txt
+.sk
+.nbt
+.mcfunction
+.schematic
+.properties
+.csv
+.png
+.midi
+.nbs
+.mcmeta
+.dat
+.conf
+.template
+.schem
+.jpg
+.jpeg
+.gif
+.lang
+*/
+
+function isAllowed(filename) {
+    const allowedExtensions = ['.yml','.json','.txt','.sk','.nbt','.mcfunction','.schematic','.properties','.csv','.png','.midi','.nbs','.mcmeta','.dat','.conf','.template','.schem','.jpg','.jpeg','.gif','.lang']
+    return allowedExtensions.includes('.' + filename.split(".")[filename.split(".").length - 1])
 }
