@@ -653,7 +653,35 @@ function Start() {
                                                     })
                                                 break
                                                 case 4:
+                                                    console.log("[0] All of them")
 
+                                                    minehut.file.listDir(servers[selected]._id,"/plugins").then(dir => {
+                                                        dir = dir.filter(file => file.directory)
+                                                        dir.forEach((file, index) => {
+                                                            console.log("[" + (index + 1) + "] " + file.name)
+                                                        })
+                                                        waitForInput(null, "Which plugin would you like to configure? ").then(input => {
+                                                            input = isNumber(input)
+                                                            
+                                                            if (!input && input !== 0) {
+                                                                console.log("Invalid choice")
+                                                                process.exit(1)
+                                                            }
+
+                                                            if (0 <= input <= dir.length) {
+                                                                if (input === 0) {
+                                                                    downloadRecursively("./plugins", "/plugins", servers[selected]._id)
+                                                                }
+                                                                else {
+
+                                                                }
+                                                            }
+                                                            else {
+                                                                console.log("Invalid choice")
+                                                                process.exit(1)
+                                                            }
+                                                        })
+                                                    })
                                                 break
                                             }
                                         })
@@ -733,8 +761,16 @@ function downloadRecursively(localpath, remotepath, server) { //Horrible approac
 
     function recurse(cd) { // I sure do hope you don't have a lot of files :(
         fileQueue.forEach(file => {
-            minehut.file.readFile(server, remotepath + cd).then(contents => {
-                fs.writeFile(localpath + cd, contents, (err) => {
+            //console.log("Downloading " + file)
+
+            minehut.file.readFile(server, remotepath + file).then(contents => {
+                let downloadPath = (localpath + file).split("/")
+                let downloadDir = downloadPath.join("/").replace(downloadPath[downloadPath.length - 1], "")
+                if (!fs.existsSync(downloadDir)) {
+                    fs.mkdirSync(downloadDir, {recursive: true})
+                }
+
+                fs.writeFile(localpath + file, contents.content, (err) => {
                     if (err) {
                         console.error("Error writing file!\n\n" + err)
                         process.exit(1)
@@ -748,17 +784,36 @@ function downloadRecursively(localpath, remotepath, server) { //Horrible approac
         minehut.file.listDir(server, remotepath + cd).then(dir => {
             dir.forEach(file => {
                 if (file.directory) {
-                    dirQueue.push(cd + file.name)
+                    if (cd === "/") { //  ¯\_(ツ)_/¯
+                        dirQueue.push(cd + file.name)
+                    }
+                    else {
+                        dirQueue.push(cd + '/' + file.name)
+                    }
+                    
                 }
 
                 if (!file.directory && !file.blocked) {
-                    fileQueue.push(cd + file.name)
+                    fileQueue.push(cd + '/' + file.name)
                 }
             })
 
-            recurse(dirQueue.splice(0, 1))
+            if (dirQueue.length === 0) {
+                console.log("Done!")
+                process.exit(0)
+            }
+            else {
+                let seeDee = dirQueue.splice(0, 1)[0]
+                if (!seeDee) {
+                    debugger
+                }
+                else {
+                    recurse(seeDee)
+                }
+            }
         })
     }
 
     recurse("/")
+    console.log("Next func!")
 }
