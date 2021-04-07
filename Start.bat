@@ -1,6 +1,9 @@
 @echo off
 cls
 
+REM I don't test the windows version as much as i test the sh file!!
+REM If there's an error let me know!
+
 echo ================================================================================
 echo Thank you for using ExternalDash!
 echo Most recent version is available at https://github.com/mygizli04/ExternalDash
