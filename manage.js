@@ -4,7 +4,8 @@ if (!process.stdin.isTTY) { //We need the users to be able to make choices, so a
 }
 
 const fs = require('fs')
-const chalk = require('chalk')
+const chalk = require('chalk');
+const { dir } = require('console');
 var minehut = {}; //I hate scopes.
 
 try {
@@ -653,7 +654,7 @@ function Start() {
                                                 break
                                                 case 4:
                                                     console.log("[1] Download configs")
-                                                    console.log("[2] Upload configs " + chalk.yellowBright("NOT COMPLETE"))
+                                                    console.log("[2] Upload configs")
                                                     waitForInput().then(input => {
                                                         input = parseInt(input.trim())
                                                         if (input === 1) {
@@ -690,10 +691,11 @@ function Start() {
                                                         else if (input === 2) {
                                                             console.log("[0] All of them")
 
-                                                            minehut.file.listDir(servers[selected]._id,"/plugins").then(dir => {
-                                                                dir = dir.filter(file => file.directory)
+
+                                                                var dir = fs.readdirSync('./plugins')
+                                                                dir = dir.filter(dir => fs.lstatSync('./plugins/' + dir).isDirectory())
                                                                 dir.forEach((file, index) => {
-                                                                    console.log("[" + (index + 1) + "] " + file.name)
+                                                                    console.log("[" + (index + 1) + "] " + file)
                                                                 })
                                                                 waitForInput(null, "Which plugin would you like to upload the configs for? ").then(input => {
                                                                     input = isNumber(input)
@@ -708,7 +710,7 @@ function Start() {
                                                                             uploadRecursively("./plugins", "/plugins", servers[selected]._id)
                                                                         }
                                                                         else {
-                                                                            uploadRecursively("./plugins/" + dir[input - 1].name, "/plugins/" + dir[input - 1].name, servers[selected]._id)
+                                                                            uploadRecursively("./plugins/" + dir[input - 1], "/plugins/" + dir[input - 1], servers[selected]._id)
                                                                         }
                                                                     }
                                                                     else {
@@ -716,7 +718,6 @@ function Start() {
                                                                         process.exit(1)
                                                                     }
                                                                 })
-                                                            })
                                                         }
                                                         else {
                                                             console.error(chalk.redBright("Invalid choice!"))
@@ -804,7 +805,7 @@ function downloadRecursively(localpath, remotepath, server) { //Horrible approac
 
     function recurse(cd) { // I sure do hope you don't have a lot of files :(
         fileQueue.forEach(file => {
-            //console.log("Downloading " + file)
+            console.log("Downloading " + file)
 
             minehut.file.readFile(server, remotepath + file).then(contents => {
                 let downloadPath = (localpath + file).split("/")
@@ -873,12 +874,12 @@ function uploadRecursively(localpath, remotepath, server) { //Horrible approach 
 
     function recurse(cd) { // I sure do hope you don't have a lot of files :(
         fileQueue.forEach(file => {
-            //console.log("Downloading " + file)
+            console.log("Uploading " + file)
 
             //Iterate over fileQueue
             let uploadPath = (remotepath + file).split("/")
             let uploadDir = uploadPath.join("/").replace(uploadPath[uploadPath.length - 1], "")
-            minehut.file.readDir(server, uploadDir).then(atTheEnd).catch(err => {
+            minehut.file.listDir(server, uploadDir).then(atTheEnd).catch(err => {
                 let dirArray = (remotepath + file).split("/")
                 let parentDir = dirArray.join("/").replace(dirArray[dirArray.length - 1], "")
                 minehut.file.createFolder(server, parentDir, dirArray[dirArray.length - 1]).then(() => {
@@ -887,7 +888,7 @@ function uploadRecursively(localpath, remotepath, server) { //Horrible approach 
             })
 
             function atTheEnd() {
-                minehut.uploadFile(localpath + file, remotepath + file)
+                minehut.file.uploadFile(server ,localpath + file, remotepath + file)
             }
         })
 
@@ -902,7 +903,7 @@ function uploadRecursively(localpath, remotepath, server) { //Horrible approach 
             }
 
             dir.forEach(file => {
-                if (fs.lstatSync(localpath + '/' + file).isDirectory()) {
+                if (fs.lstatSync(localpath + cd + '/' + file).isDirectory()) {
                     if (cd === "/") { //  ¯\_(ツ)_/¯
                         dirQueue.push(cd + file)
                     }
@@ -911,30 +912,38 @@ function uploadRecursively(localpath, remotepath, server) { //Horrible approach 
                     }
                 }
                 else if (isAllowed(file)) {
-                    fileQueue.push(cd + '/' + file)
-                }
-
-                if (dirQueue.length === 0 && fileQueue.length === 0) {
-                    console.log("Done!")
-                    process.exit(0)   
-                }
-                else {
-                    let seeDee = dirQueue.splice(0, 1)[0]
-                    if (!seeDee) {
-                        if (reRecurse) {
-                            reRecurse = false
-                            recurse(cd)
-                        }
-                        else {
-                            console.log("Done!")
-                            setTimeout(process.exit, 1000)
-                        }
+                    if (cd === "/") { //  ¯\_(ツ)_/¯
+                        fileQueue.push(cd + file)
                     }
                     else {
-                        recurse(seeDee)
+                        fileQueue.push(cd + '/' + file)
                     }
                 }
+                else {
+                    return
+                }
             })
+
+            if (dirQueue.length === 0 && fileQueue.length === 0) {
+                console.log("Done!")
+                setTimeout(process.exit, 2000)
+            }
+            else {
+                let seeDee = dirQueue.splice(0, 1)[0]
+                if (!seeDee) {
+                    if (reRecurse) {
+                        reRecurse = false
+                        recurse(cd)
+                    }
+                    else {
+                        console.log("Done!")
+                        setTimeout(process.exit, 2000)
+                    }
+                }
+                else {
+                    recurse(seeDee)
+                }
+            }
         })
     }
 
