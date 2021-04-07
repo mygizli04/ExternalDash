@@ -8,6 +8,7 @@ echo "==========================================================================
 echo -e "\nWhich script would you like to run?"
 echo -e "\n[1] log.js (Almost real time logs on minehut)"
 echo "[2] manage.js (Manage your minehut server right from the comfort of your terminal)"
+echo "[3] Update"
 read script
 
 if [ $script -eq 1 ]
@@ -16,6 +17,16 @@ then
 elif [ $script -eq 2 ]
 then
     javascript="./manage.js"
+elif [ $script -eq 3 ]
+then
+    which git &> /dev/null
+    if [ $? -gt 0 ]
+    then
+        echo "You don't have git." #I spent like whole day making an insane mess of nested if statements for every single possibility ever. I said f- it and you only get this echo now.
+    else
+        git pull
+    fi
+    exit
 else
     echo "I don't undertand :("
     exit 1
@@ -41,7 +52,7 @@ then
             then
                 apt install node
             elif
-                echo "We can't detect a supported package manager." #apt + brew cover most of the usecases, feel free to add more package managers
+                echo "We can't detect a supported package manager." #apt + brew cover most of the usecases, feel free to add more package managersmanagers
                 echo "You can get node.js from https://nodejs.org/en/download/"
                 open "https://nodejs.org/en/download/"
             fi

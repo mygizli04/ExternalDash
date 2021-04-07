@@ -10,11 +10,13 @@ echo ===========================================================================
 echo.  
 echo [1] log.js (Almost real time logs on minehut)
 echo [2] manage.js (Manage your minehut server right from the comfort of your command prompt)
+echo [3] Update
 
 set /P input=Which script would you like to run? 
 
 if %input% == 1 set javascript=log.js
 if %input% == 2 set javascript=manage.js
+if %input% == 3 goto UPDATE
 if "%javascript%"=="" (
     echo That is not a valid answer.
     PAUSE
@@ -38,6 +40,16 @@ if %errorlevel%==1 (
     )
 )
 
+PAUSE
+exit
+
+:UPDATE
+echo Updating...
+git pull > nul 2>&1 || goto CANTUPDATE
+PAUSE
+exit
+:CANTUPDATE
+echo You don't have git installed.
 PAUSE
 exit
 
