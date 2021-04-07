@@ -23,11 +23,40 @@ fi
 
 echo "Launching $javascript Please wait.."
 node $javascript
-if [ $? -gt 0 ]
+if [ $? -eq 127 ]
+then
+    echo "You don't seem have node.js installed. Would you like the script to attempt to install it? (Y/N) "
+    read install
+    if [ $install -eq "Y" ] || [ $install -eq "y" ] #
+    then
+        #Now, going to try to detect if they have a package manager (apt or brew)
+        which brew > /dev/null
+        if [ $? -eq 0 ]
+        then
+            brew install node
+            exit
+        else
+            which apt > /dev/null
+            if [ $? -eq 0 ] 
+            then
+                apt install node
+            elif
+                echo "We can't detect a supported package manager." #apt + brew cover most of the usecases, feel free to add more package managers
+                echo "You can get node.js from https://nodejs.org/en/download/"
+                open "https://nodejs.org/en/download/"
+            fi
+        fi
+elif [ $? -gt 1 ]
 then
     echo "Uh oh.. Looks like the script failed. You should read what the error message says in order to solve the issue."
     echo "If you can't understand the error, think the error is on my part, or can't resolve the error,"
     echo "don't hesitate to reach out to me, or even better make a pull request or issue over at github."
     echo "You can DM me over at discord (sbeve#4701), or make an issue at https://github.com/mygizli04/ExternalDash/issues"
-    exit 1
+    echo "Would you like the script to attempt to install/update modules?"
+    read install
+    if [ $install -eq "Y"]
+    then
+        npm i
+    else
+        exit 1
 fi
