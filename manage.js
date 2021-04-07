@@ -5,7 +5,6 @@ if (!process.stdin.isTTY) { //We need the users to be able to make choices, so a
 
 const fs = require('fs')
 const chalk = require('chalk');
-const { dir } = require('console');
 var minehut = {}; //I hate scopes.
 
 try {
