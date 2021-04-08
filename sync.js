@@ -198,6 +198,56 @@ function startMonitor() {
                                             server.sendCommand("tellraw " + user + ' {"text":"You have not saved anything."}')
                                         }
                                     break
+                                    /*case "POS":
+                                        let x = text.substring(3,text.indexOf(","))
+                                        let y = text.substring(text.indexOf("y") + 3,text.indexOf(",", text.indexOf("y") + 3))
+                                        let z = text.substring(text.indexOf("z: ") + 3)
+                                        servers.forEach((oServer, oIndex, oArray) => {
+                                            if (oIndex === index) {
+                                                return
+                                            }
+                                            else {
+                                                oServer.sendCommand('npc select ' + user).then(() => {
+                                                    oServer.sendCommand('npc moveTo ' + x + ' ' + y + ' ' + z)
+                                                })
+                                            }
+                                        })
+                                    break*/
+                                    case "JOIN":
+                                        servers.forEach((oServer, oIndex, oArray) => {
+                                            if (oIndex === index) {
+                                                return
+                                            }
+                                            else {
+                                                oServer.sendCommand('tellraw @a {"text":"' + user + ' joined the game.","color":"yellow"}')
+                                                /*oServer.sendCommand('npc create ' + user + ' --at 0:255:0')
+                                                oServer.sendCommand('npc gravity')
+                                                oServer.sendCommand('npc look')*/
+                                            }
+                                        })
+                                    break
+                                    case "QUIT":
+                                        servers.forEach((oServer, oIndex, oArray) => {
+                                            if (oIndex === index) {
+                                                return
+                                            }
+                                            else {
+                                                oServer.sendCommand('tellraw @a {"text":"' + user + ' left the game.","color":"yellow"}')
+                                                //oServer.sendCommand('npc remove ' + user)
+                                            }
+                                        })
+                                    break
+                                    case "CHAT":
+                                        servers.forEach((oServer, oIndex, oArray) => {
+                                            if (oIndex === index) {
+                                                return
+                                            }
+                                            else {
+                                                oServer.sendCommand('tellraw @a {"text":"[' + server.name + '] <' + user + '> ' + text + '"}')
+                                                //oServer.sendCommand('npc remove ' + user)
+                                            }
+                                        })
+                                    break
                                     default:
                                         console.error("Unkown command " + command)
                                     break
