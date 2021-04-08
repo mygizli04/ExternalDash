@@ -429,29 +429,6 @@ exports.server = {
         return promise
     },
 
-    createBackup: async function (server) {
-        var promiseResolve;
-        var promiseReject;
-        var promise = new Promise((res, rej) => {
-            promiseResolve = res
-            promiseReject = rej
-        })
-
-        if (authorizedOnly(promiseReject) == false) {
-            return
-        }
-
-        exports.requestAuthorized('/v1/server/' + server + '/backup/create').then(res => {
-            res.backups.forEach((value, index, array) => {
-                array[index] = addBackupFuncs(value)
-            })
-            res.rolling_backup = addBackupFuncs(res.rolling_backup)
-            promiseResolve(res)
-        })
-
-        return promise
-    },
-
     applyBackup: async function (server, backup) {
         var promiseResolve;
         var promiseReject;
