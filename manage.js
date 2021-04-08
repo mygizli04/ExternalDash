@@ -197,7 +197,7 @@ function Start() {
                                     console.log("[1] Download")
                                     console.log("[2] Upload")
                                     console.log("[3] Sync")
-                                    waitForInput(data => 1 <= data <= 3).then(data => {
+                                    waitForInput(input => {return numCheck(input,1,3)}).then(data => {
                                         data = parseInt(data)
                                         switch (data) {
                                             case 1:
@@ -218,7 +218,7 @@ function Start() {
                                                     dir.forEach((file, index) => {
                                                         console.log("[" + (index + 3) + "] " + file)
                                                     })
-                                                    waitForInput(input => 0 <= input <= (input + dir.length)).then(input => {
+                                                    waitForInput(input => {return numCheck(input,0,(input + dir.length))}).then(input => {
                                                         input = parseInt(input)
                                                         switch (input) {
                                                             case 0:
@@ -359,7 +359,7 @@ function Start() {
                                                 var dir = fs.readdirSync('./skripts')
                                                 dir.forEach((file, index, array) => {if (!file.endsWith(".sk")) array.splice(index, 1)})
                                                 dir.forEach((file, index) => console.log("[" + (index + 3) + "] " + file))
-                                                waitForInput(input => 0 <= input <= dir.length + 2).then(input => {
+                                                waitForInput(input => {return numCheck(input, 0, dir.length + 2)}).then(input => {
                                                     input = parseInt(input)
                                                     switch (input) {
                                                         case 0:
@@ -412,13 +412,13 @@ function Start() {
                                                 case 3:
                                                     console.log("[1] Sync minehut with local directory (Deletes files on minehut)")
                                                     console.log("[2] Sync local directory with minehut (Deletes local files)")
-                                                    waitForInput(input => 1 <= input <= 2).then(input => {
+                                                    waitForInput(input => {return (input,1,2)}).then(input => {
                                                         input = parseInt(input)
                                                         switch (input) {
                                                             case 1:
                                                                 console.log(chalk.redBright("THIS WILL DELETE SKRIPTS ON MINEHUT."))
                                                                 process.stdout.write("Are you sure? This will make the skript folder on minehut be the same as the skripts folder. (Y/N) ")
-                                                                waitForInput(input => input.toUpperCase().trim() === "Y" || input.toUpperCase().trim() === "N").then(input => {
+                                                                waitForInput(YNCheck).then(input => {
                                                                     switch (input.toUpperCase().trim()) {
                                                                         case "Y":
                                                                             minehut.file.listDir(servers[selected]._id, "/plugins/Skript/scripts").then(dir => {
@@ -460,7 +460,7 @@ function Start() {
                                                             case 2:
                                                                 console.log(chalk.redBright("THIS MIGHT DELETE SKRIPT FILES FROM THE SKRIPTS FOLDER."))
                                                                 process.stdout.write("Are you sure? This will make the skripts folder on minehut be the same as the folder on minehut. (Y/N) ")
-                                                                waitForInput(input => input.toUpperCase().trim() === "Y" || input.toUpperCase().trim() === "N").then(input => {
+                                                                waitForInput(YNCheck).then(input => {
                                                                     switch (input.toUpperCase().trim()) {
                                                                         case "Y":
                                                                             fs.rm('./skripts/', {recursive: true}, (err) => {
@@ -502,7 +502,7 @@ function Start() {
                                         console.log("[2] Remove plugin")
                                         console.log("[3] Reset plugin")
                                         console.log("[4] Modify plugin configs")
-                                        waitForInput(input => 1 <= input <= 4).then(input => {
+                                        waitForInput(input => {return numCheck(input,1,4)}).then(input => {
                                             input = parseInt(input)
                                             switch (input) {
                                                 case 1:
@@ -529,7 +529,7 @@ function Start() {
                                                                 console.log("[" + (index + 1) + "] " + match.name)
                                                             })
 
-                                                            waitForInput(input => 1 <= input <= matches.length).then(input => {
+                                                            waitForInput(input => {return numCheck(input,1,matches.length)}).then(input => {
                                                                 input = parseInt(input) - 1
                                                                 console.log("Installing " + matches[input].name + " to " + servers[selected].name)
                                                                 matches[input].install(servers[selected]._id).then(res => {
@@ -771,30 +771,53 @@ function colorEnd() {
     process.stdout.write("\x1B[39m")
 }
 
-async function waitForInput(check, string) { //Woo hoo literally only async function in the file how efficent
-    if (string) {
-        process.stdout.write(string)
-    }
-    return new Promise((resolve, reject) => {
-        process.stdin.once('data', data => {
-            data = data.toString().trim()
-            if (!check) {
-                resolve(data)
-            }
-            else {
-                let checkResult = check(data)
-                if (typeof checkResult == "Promise") {
-                    checkResult.then(() => resolve(data)).catch(() => {
-                        console.error(chalk.redBright("That is not a valid answer."))
-                        process.exit(1)
-                    })
+async function waitForInput(check, question) {
+    return new Promise(resolve => {
+        if (question) {
+            process.stdout.write(question)
+        }
+    
+        process.stdin.once('data', input => {
+            input = input.toString().trim()
+    
+            if (check) {
+                if (check(input)) {
+                    resolve(check(input))
                 }
                 else {
-                    resolve(data)
+                    console.error(chalk.redBright("Invalid input!"))
+                    process.exit(1)
                 }
+            }
+            else {
+                resolve(input)
             }
         })
     })
+}
+
+function numCheck(num, min, max) {
+    num = parseInt(num)
+    if ((min <= num) && (num <= max)) { //Don't ask. Just don't.
+        return num
+    }
+    else {
+        return false
+    }
+}
+
+function YNCheck(YN) {
+    YN = YN.toUpperCase()
+    if (YN == "Y") {
+        return true
+    }
+    else if (YN == "N") {
+        return false
+    }
+    else {
+        console.error(chalk.redBright("Invalid input!"))
+        process.exit(1)
+    }
 }
 
 var reRecurse = true
