@@ -144,7 +144,7 @@ function Start() {
         }
 
         function onlineCheck() {
-            if (servers[selected].active_server_plan_details) {
+            if (servers[selected].active_server_plan_details.max_plugins) {
                 if (servers[selected].active_plugins.length > 12) {
                     console.error(chalk.redBright("You have more plugins than your plan supports. Please remove plugins or buy a server plan."))
                     process.exit(1)
