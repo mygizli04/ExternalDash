@@ -248,6 +248,7 @@ function Start() {
                                                                         if (file == dir[dir.length - 1]) process.exit(0)
                                                                     })
                                                                 })
+                                                            break
                                                             case 1:
                                                                 dir.forEach((file, index, array) => {if (file.startsWith("-")) {array.splice(index, 1)}})
                                                                 var warned = false;

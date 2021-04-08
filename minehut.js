@@ -77,10 +77,8 @@ exports.servers = {
         })
 
         var promiseResolve
-        var promiseReject
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             promiseResolve = resolve
-            promiseReject = reject
         })
     },
 
@@ -764,10 +762,8 @@ exports.file = {
     },
 
     editFile: async function (server, file, content) {
-        var promiseResolve
         var promiseReject
         var promise = new Promise((resolve, reject) => {
-            promiseResolve = resolve
             promiseReject = reject
         })
 
