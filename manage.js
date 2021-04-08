@@ -419,8 +419,8 @@ function Start() {
                                                                 console.log(chalk.redBright("THIS WILL DELETE SKRIPTS ON MINEHUT."))
                                                                 process.stdout.write("Are you sure? This will make the skript folder on minehut be the same as the skripts folder. (Y/N) ")
                                                                 waitForInput(YNCheck).then(input => {
-                                                                    switch (input.toUpperCase().trim()) {
-                                                                        case "Y":
+                                                                    switch (input) {
+                                                                        case true:
                                                                             minehut.file.listDir(servers[selected]._id, "/plugins/Skript/scripts").then(dir => {
                                                                                 dir.forEach(file => {
                                                                                     if (file.name.endsWith(".sk")) {
@@ -450,7 +450,7 @@ function Start() {
                                                                                 })
                                                                             })
                                                                         break
-                                                                        case "N":
+                                                                        case false:
                                                                             console.log("Aborted")
                                                                             process.exit(1)
                                                                         break
@@ -461,8 +461,8 @@ function Start() {
                                                                 console.log(chalk.redBright("THIS MIGHT DELETE SKRIPT FILES FROM THE SKRIPTS FOLDER."))
                                                                 process.stdout.write("Are you sure? This will make the skripts folder on minehut be the same as the folder on minehut. (Y/N) ")
                                                                 waitForInput(YNCheck).then(input => {
-                                                                    switch (input.toUpperCase().trim()) {
-                                                                        case "Y":
+                                                                    switch (input) {
+                                                                        case true:
                                                                             fs.rm('./skripts/', {recursive: true}, (err) => {
                                                                                 if (err) {
                                                                                     console.log(chalk.yellowBright("A non-fatal error occured, but it can be ignored."))
@@ -484,7 +484,7 @@ function Start() {
                                                                                 })
                                                                             })
                                                                         break
-                                                                        case "N":
+                                                                        case false:
                                                                             console.log("Aborted")
                                                                             process.exit(1)
                                                                         break
