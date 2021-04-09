@@ -255,36 +255,45 @@ function Start() {
                                                                 })
                                                             break
                                                             case 1:
-                                                                dir.forEach((file, index, array) => {if (file.startsWith("-")) {array.splice(index, 1)}})
+                                                                dir = dir.filter(file => {return !file.name.startsWith("-")})
                                                                 var warned = false;
+                                                                var recursiveWarned = false;
                                                                 dir.forEach(file => {
-                                                                    if (fs.existsSync('./skripts/' + file)) {
+                                                                    if (fs.existsSync('./skripts/' + file.name)) {
                                                                         if (!warned) {
                                                                             console.log(chalk.yellowBright("Warning: One or more files you're trying to download already exist. If they are older than 1 day they will be moved into a seperate folder, or else they will be updated."))
                                                                             warned = true
                                                                         }
-                                                                        if (fs.statSync('./skripts/' + file).mtime.getTime() < new Date().getTime() - 86400000) {
-                                                                            console.log("Archiving " + file)
-                                                                            fs.rename('./skripts/' + file, './skriptArchive/' + file, (err) => {
+                                                                        if (fs.statSync('./skripts/' + file.name).mtime.getTime() < new Date().getTime() - 86400000) {
+                                                                            console.log("Archiving " + file.name)
+                                                                            fs.rename('./skripts/' + file.name, './skriptArchive/' + file.name, (err) => {
                                                                                 if (err) {
                                                                                     console.error(chalk.redBright("An error occured moving files!\n\n") + err)
                                                                                 }
                                                                             })
                                                                         }
                                                                         else {
-                                                                            console.log("Replacing " + file)
+                                                                            console.log("Replacing " + file.name)
                                                                         }
                                                                     }
 
-                                                                    minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
-                                                                        fs.writeFileSync('./skripts/' + file, skript.content)
-                                                                        console.log("Downloaded " + file)
-                                                                        if (file == dir[dir.length - 1]) process.exit(0)
-                                                                    })
+                                                                    if (file.directory) {
+                                                                        if (!recursiveWarned) {
+                                                                            console.log(chalk.yellowBright("Warning: This option might not work with folders."))
+                                                                        }
+                                                                        downloadRecursively('./skripts/' + file.name, "/plugins/Skript/scripts/" + file.name, servers[selected]._id)
+                                                                    }
+                                                                    else {
+                                                                        minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file.name).then(skript => {
+                                                                            fs.writeFileSync('./skripts/' + file.name, skript.content)
+                                                                            console.log("Downloaded " + file.name)
+                                                                            if (file == dir[dir.length - 1]) process.exit(0)
+                                                                        })
+                                                                    }
                                                                 })
                                                                 break
                                                             case 2:
-                                                                dir = dir.filter(file => !fs.existsSync('./skripts/' + file))
+                                                                dir = dir.filter(file => !fs.existsSync('./skripts/' + file.name))
                                                                 if (dir.length === 0) {
                                                                     console.error("There aren't any files to download.")
                                                                     process.exit(1)
@@ -292,32 +301,37 @@ function Start() {
                                                                 var warned = false;
                                                                 var downloadCount = 0;
                                                                 dir.forEach(file => {
-                                                                    if (fs.existsSync('./skripts/' + file)) {
+                                                                    if (fs.existsSync('./skripts/' + file.name)) {
                                                                         if (!warned) {
                                                                             console.log(chalk.yellowBright("Warning: One or more files you're trying to download already exist. If they are older than 1 day they will be moved into a seperate folder, or else they will be updated."))
                                                                             warned = true
                                                                         }
-                                                                        if (fs.statSync('./skripts/' + file).mtime.getTime() < new Date().getTime() - 86400000) {
-                                                                            console.log("Archiving " + file)
-                                                                            fs.rename('./skripts/' + file, './skriptArchive/' + file, (err) => {
+                                                                        if (fs.statSync('./skripts/' + file.name).mtime.getTime() < new Date().getTime() - 86400000) {
+                                                                            console.log("Archiving " + file.name)
+                                                                            fs.rename('./skripts/' + file.name, './skriptArchive/' + file.name, (err) => {
                                                                                 if (err) {
                                                                                     console.error(chalk.redBright("An error occured moving files!\n\n") + err)
                                                                                 }
                                                                             })
                                                                         }
                                                                         else {
-                                                                            console.log("Replacing " + file)
+                                                                            console.log("Replacing " + file.name)
                                                                         }
                                                                     }
 
-                                                                    minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
-                                                                        fs.writeFileSync('./skripts/' + file, skript.content)
-                                                                        console.log("Downloaded " + file)
-                                                                        downloadCount++
-                                                                        if (downloadCount == dir.length) {
-                                                                            process.exit(0)
-                                                                        }
-                                                                    })
+                                                                    if (file.directory) {
+                                                                        downloadRecursively('./skripts/' + file.name, "/plugins/Skript/scripts/" + file.name, servers[selected]._id)
+                                                                    }
+                                                                    else {
+                                                                        minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
+                                                                            fs.writeFileSync('./skripts/' + file, skript.content)
+                                                                            console.log("Downloaded " + file)
+                                                                            downloadCount++
+                                                                            if (downloadCount == dir.length) {
+                                                                                process.exit(0)
+                                                                            }
+                                                                        })
+                                                                    }
                                                                 })
                                                                 break
                                                             default:
@@ -338,11 +352,16 @@ function Start() {
                                                                     }
                                                                 }
 
-                                                                minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
-                                                                    fs.writeFileSync('./skripts/' + file, skript.content)
-                                                                    console.log("Downloaded " + file)
-                                                                    process.exit(0)
-                                                                })
+                                                                if (file.directory) {
+                                                                    downloadRecursively('./skripts/' + file.name, "/plugins/Skript/scripts/" + file.name, servers[selected]._id)
+                                                                }
+                                                                else {
+                                                                    minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file.name).then(skript => {
+                                                                        fs.writeFileSync('./skripts/' + file.name, skript.content)
+                                                                        console.log("Downloaded " + file.name)
+                                                                        if (file == dir[dir.length - 1]) process.exit(0)
+                                                                    })
+                                                                }
                                                         }
                                                     })
                                                 })
