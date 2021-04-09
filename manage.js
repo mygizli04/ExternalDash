@@ -214,9 +214,9 @@ function Start() {
                                                 console.log("[2] Only ones i don't have")
                                                 minehut.file.listDir(servers[selected]._id, "/plugins/Skript/scripts").then(dir => {
                                                     dir.forEach((file,index,array) => {if (file.blocked) {array.splice(index, 1)}})
-                                                    dir.forEach((file,index,array) => array[index] = file.name)
+                                                    //dir.forEach((file,index,array) => array[index] = file.name)
                                                     dir.forEach((file, index) => {
-                                                        console.log("[" + (index + 3) + "] " + file)
+                                                        console.log("[" + (index + 3) + "] " + file.name)
                                                     })
                                                     waitForInput(input => {return numCheck(input,0,(input + dir.length))}).then(input => {
                                                         input = parseInt(input)
@@ -224,29 +224,34 @@ function Start() {
                                                             case 0:
                                                                 var warned = false;
                                                                 dir.forEach(file => {
-                                                                    if (fs.existsSync('./skripts/' + file)) {
+                                                                    if (fs.existsSync('./skripts/' + file.name)) {
                                                                         if (!warned) {
                                                                             console.log(chalk.yellowBright("Warning: One or more files you're trying to download already exist. If they are older than 1 day they will be moved into a seperate folder, or else they will be updated."))
                                                                             warned = true
                                                                         }
-                                                                        if (fs.statSync('./skripts/' + file).mtime.getTime() < new Date().getTime() - 86400000) {
-                                                                            console.log("Archiving " + file)
-                                                                            fs.rename('./skripts/' + file, './skriptArchive/' + file, (err) => {
+                                                                        if (fs.statSync('./skripts/' + file.name).mtime.getTime() < new Date().getTime() - 86400000) {
+                                                                            console.log("Archiving " + file.name)
+                                                                            fs.rename('./skripts/' + file.name, './skriptArchive/' + file.name, (err) => {
                                                                                 if (err) {
                                                                                     console.error(chalk.redBright("An error occured moving files!\n\n") + err)
                                                                                 }
                                                                             })
                                                                         }
                                                                         else {
-                                                                            console.log("Replacing " + file)
+                                                                            console.log("Replacing " + file.name)
                                                                         }
                                                                     }
 
-                                                                    minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file).then(skript => {
-                                                                        fs.writeFileSync('./skripts/' + file, skript.content)
-                                                                        console.log("Downloaded " + file)
-                                                                        if (file == dir[dir.length - 1]) process.exit(0)
-                                                                    })
+                                                                    if (file.directory) {
+                                                                        downloadRecursively('./skripts/' + file.name, "/plugins/Skript/scripts/" + file.name, servers[selected]._id)
+                                                                    }
+                                                                    else {
+                                                                        minehut.file.readFile(servers[selected]._id, "/plugins/Skript/scripts/" + file.name).then(skript => {
+                                                                            fs.writeFileSync('./skripts/' + file.name, skript.content)
+                                                                            console.log("Downloaded " + file.name)
+                                                                            if (file == dir[dir.length - 1]) process.exit(0)
+                                                                        })
+                                                                    }
                                                                 })
                                                             break
                                                             case 1:
@@ -781,8 +786,9 @@ async function waitForInput(check, question) {
             input = input.toString().trim()
     
             if (check) {
-                if (check(input)) {
-                    resolve(check(input))
+                let checkResult = check(input)
+                if (checkResult || checkResult === 0) {
+                    resolve(checkResult)
                 }
                 else {
                     console.error(chalk.redBright("Invalid input!"))
