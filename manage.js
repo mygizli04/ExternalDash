@@ -412,7 +412,7 @@ function Start() {
                                                 case 3:
                                                     console.log("[1] Sync minehut with local directory (Deletes files on minehut)")
                                                     console.log("[2] Sync local directory with minehut (Deletes local files)")
-                                                    waitForInput(input => {return (input,1,2)}).then(input => {
+                                                    waitForInput(input => {return numCheck(input,1,2)}).then(input => {
                                                         input = parseInt(input)
                                                         switch (input) {
                                                             case 1:
