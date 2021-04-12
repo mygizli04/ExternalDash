@@ -1,3 +1,91 @@
+const fs = require('fs')
+const chalk = require('chalk')
+
+var config;
+var discord;
+var discordClient;
+if (fs.existsSync('./config.json')) {
+    config = require('./config.json')
+
+    //Checks
+    if (config.loginStorage !== "env" || config.loginStorage !== "config") {
+        console.log(chalk.redBright("Invalid config option."))
+        debugger
+        process.exit(1)
+    }
+
+    if (config.loginStorage !== "single" || config.loginStorage !== "server") {
+        console.log(chalk.redBright("Invalid config option."))
+        debugger
+        process.exit(1)
+    }
+
+    if (config.loginStorage === "single" && config.server.length < 1) {
+        console.log(chalk.redBright("Invalid config option."))
+        debugger
+        process.exit(1)
+    }
+
+    if (!config.mcUsername) {
+        console.log(chalk.redBright("Invalid config option."))
+        debugger
+        process.exit(1)
+    }
+
+    if (!config.mcPassword) {
+        console.log(chalk.redBright("Invalid config option."))
+        debugger
+        process.exit(1)
+    } 
+
+    if (!config.authmode) {
+        console.log(chalk.redBright("Invalid config option."))
+        debugger
+        process.exit(1)
+    } 
+
+    if (config.discord) {
+        discord = require('discord.js')
+        discordClient = new discord.Client()
+
+        if (typeof config.discordThreshold !== "number") {
+            console.log(chalk.redBright("Invalid config option."))
+            debugger
+            process.exit(1)
+        }
+
+        if (config.discordMessageServer.length !== 16) {
+            console.log(chalk.redBright("Invalid config option."))
+            debugger
+            process.exit(1)
+        }
+    }
+    
+    if (config.loginStorage !== "single" || 1 > config.minehutThreshold) {
+        console.log(chalk.redBright("Invalid config option."))
+        debugger
+        process.exit(1)
+    }
+}
+else {
+    fs.writeFileSync('./config.json', JSON.stringify({loginStorage: "env", mode: "single", server: [], mcUsername: "email@email.com", mcPassword: "yourPassword", authMode: "mojang", discord: false, discordThreshold: 1, discordMessageServer: "0000000000000000", minehutThreshold: 1, minehutCommands: []}, null, "\t"))
+    /*
+    loginStorage: How the login info will be stored. Can be 'env' or 'config'.
+    mode: How this instance will operate. Can be 'single' or 'server'.
+    server: The target server to be used in single mode. Takes an array of servers (e.g ["myserver1", "myserver2"]). Must have at least 1 element if in single mode.
+    mcUsername: Username/email to be used if loginStorage is set to config. Can be a string.
+    mcPassword: Password to be used if loginStorage is set to config. Can be a string.
+    authmode: What auth mode should be used for logging into minehut. Can be 'microsoft', 'mojang' or anything else minecraft-protocol accepts.
+    discord: If discord integration should be activated. Can be true or false.
+    discordThreshold: How many times the player must advertise before their reward. Can be a number. Must be more than 1.
+    discordMessageServer: Where the bot should post if a user passes the threshold. Can be a string of the channel ID. Must be 18 characters.
+    minehutThreshold: How many times the player must advertise before their reward. Can be a number. Must be more than 1.
+    minehutCommands: What command(s) should be run if a player passes the threshold. Can be a string (%user% will be replaced by the user)
+    */
+   console.error(chalk.red("No config found!"))
+   process.exit(1)
+}
+
 const mc = require('minecraft-protocol')
 var client = mc.createClient({
     host: "minehut.com",
