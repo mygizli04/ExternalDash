@@ -37,20 +37,13 @@ if (fs.existsSync('./config.json')) {
         app.get('/', (req, res) => {
             return res.send('How to use: /servername/username')
         })
-        
-        app.get('/:userName', (req,res) => {
-            var userData = []
-            /*rewards.forEach((server) => {
-                if (server[req.params.userName]) {
-                    userData.push(server[req.params.userName])
-                }
-            })*/
-            Object.entries(rewards).forEach(reward => {
-                if (reward[1][req.params.userName]) {
-                    userData.push(reward[1][req.params.userName])
-                }
-            })
-            return res.send(JSON.stringify(userData))
+
+        app.get('/:server', (req,res) => {
+            return res.send(JSON.stringify(rewards[req.params.server]))
+        })
+
+        app.get('/:server/:user', (req,res) => {
+            return res.send(JSON.stringify(rewards[req.params.server][req.params.user]))
         })
         
     }
