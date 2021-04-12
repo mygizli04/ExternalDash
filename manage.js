@@ -5,6 +5,7 @@ if (!process.stdin.isTTY) { //We need the users to be able to make choices, so a
 
 const fs = require('fs')
 const chalk = require('chalk');
+const { file } = require('./minehut.js');
 var minehut = {}; //I hate scopes.
 
 try {
@@ -387,16 +388,12 @@ function Start() {
                                                     input = parseInt(input)
                                                     switch (input) {
                                                         case 0:
-                                                            dir.forEach((file, index) => {
-                                                                minehut.file.uploadFile(servers[selected]._id, './skripts/' + file,"/plugins/Skript/scripts/" + file).then(res => {
-                                                                    console.log(res)
-                                                                    if (index == dir.length - 1) {
-                                                                        process.exit(0)
-                                                                    }
-                                                                })
-                                                            })
+                                                            uploadRecursively('./skripts', "/plugins/Skripts/scripts", servers[selected]._id)
                                                             break
                                                         case 1:
+                                                            dir.filter((file) => {return file.directory}).forEach(folder => {
+                                                                uploadRecursively('./skripts/' + folder.name, "/plugins/Skripts/scripts")
+                                                            })
                                                             dir.forEach((file,index,array) => {if (file.startsWith("-")) {array.splice(index, 1)}})
                                                             dir.forEach((file, index) => {
                                                                 minehut.file.uploadFile(servers[selected]._id, './skripts/' + file,"/plugins/Skript/scripts/" + file).then(res => {
@@ -923,6 +920,10 @@ function uploadRecursively(localpath, remotepath, server) { //Horrible approach 
     function recurse(cd) { // I sure do hope you don't have a lot of files :(
         fileQueue.forEach(file => {
             console.log("Uploading " + file)
+
+            if (!isAllowed(file)) {
+                return //Haha what could EVER go wrong
+            }
 
             //Iterate over fileQueue
             let uploadPath = (remotepath + file).split("/")
