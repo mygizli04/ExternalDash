@@ -32,14 +32,19 @@ if (fs.existsSync('./config.json')) {
     if (config.mode === "server") {
         const express = require('express')
         const app = express()
-        app.listen(8080)
+        app.listen(8008)
         
         app.get('/', (req, res) => {
             return res.send('How to use: /servername/username')
         })
 
         app.get('/:server', (req,res) => {
-            return res.send(JSON.stringify(rewards[req.params.server]))
+            if (server === "*") {
+                return res.send(JSON.stringify(rewards))
+            }
+            else {
+                return res.send(JSON.stringify(rewards[req.params.server]))
+            }
         })
 
         app.get('/:server/:user', (req,res) => {
