@@ -4,6 +4,7 @@ const chalk = require('chalk')
 var config;
 var discord;
 var discordClient;
+var rewards;
 if (fs.existsSync('./config.json')) {
     config = require('./config.json')
 
@@ -18,6 +19,16 @@ if (fs.existsSync('./config.json')) {
         console.log(chalk.redBright("Invalid config option."))
         debugger
         process.exit(1)
+    }
+
+    if (config.loginStorage === "single") {
+        if (fs.existsSync('./rewards.json')) {
+            rewards = require('./rewards.json')
+        }
+        else {
+            rewards = {}
+            fs.writeFileSync('./rewards.json', "{}")
+        }
     }
 
     if (config.loginStorage === "single" && config.server.length < 1) {
@@ -68,11 +79,11 @@ if (fs.existsSync('./config.json')) {
     }
 }
 else {
-    fs.writeFileSync('./config.json', JSON.stringify({loginStorage: "env", mode: "single", server: [], mcUsername: "email@email.com", mcPassword: "yourPassword", authMode: "mojang", discord: false, discordThreshold: 1, discordMessageServer: "0000000000000000", minehutThreshold: 1, minehutCommands: []}, null, "\t"))
+    fs.writeFileSync('./config.json', JSON.stringify({loginStorage: "env", mode: "single", servers: [], mcUsername: "email@email.com", mcPassword: "yourPassword", authMode: "mojang", discord: false, discordThreshold: 1, discordMessageServer: "0000000000000000", minehutThreshold: 1, minehutCommands: []}, null, "\t"))
     /*
     loginStorage: How the login info will be stored. Can be 'env' or 'config'.
     mode: How this instance will operate. Can be 'single' or 'server'.
-    server: The target server to be used in single mode. Takes an array of servers (e.g ["myserver1", "myserver2"]). Must have at least 1 element if in single mode.
+    servers: The target server to be used in single mode. Takes an array of servers (e.g ["myserver1", "myserver2"]). Must have at least 1 element if in single mode.
     mcUsername: Username/email to be used if loginStorage is set to config. Can be a string.
     mcPassword: Password to be used if loginStorage is set to config. Can be a string.
     authmode: What auth mode should be used for logging into minehut. Can be 'microsoft', 'mojang' or anything else minecraft-protocol accepts.
@@ -106,6 +117,9 @@ var client = mc.createClient({
     auth: 'mojang'
 })
 
+const minehut = require('./minehut.js')
+minehut.loginWithHAR('./minehut.har')
+
 client.on('chat', packet => {
     packet = JSON.parse(packet.message)
     if (!packet.extra) return
@@ -124,10 +138,36 @@ client.on('chat', packet => {
                 message += packet.extra[i].text
             }
         }
-        console.log("Ad detected!")
-        console.log("Advertiser: " + advertiser)
-        console.log("Rank: " + rank)
-        console.log("Server: " + server)
-        console.log("Message: " + message)
+        if (config.mode === "single") {
+            if (config.servers.includes(server)) {
+                if (rewards[server][advertiser].count === config.minehutThreshold) {
+                    minehut.servers.allData().then(servers => {
+                        servers.forEach(remoteServer => {
+                            if (remoteServer.name.toUpperCase() === server.toUpperCase()) {
+                                config.minehutCommands.forEach(command => {
+                                    remoteServer.sendCommand(command)
+                                })
+                            }
+                        })
+                    })
+                }
+
+                if (rewards[server][advertiser].count === config.discordThreshold) {
+                    //Discord reward
+                }
+
+                if (rewards[server][advertiser].count >= config.discordThreshold && rewards[server][advertiser].count >= config.minehutThreshold) {
+                    rewards[server][advertiser].count = 0
+                }
+                else {
+                    rewards[server][advertiser].count++
+                }
+
+                fs.writeFileSync('./rewards.json', JSON.stringify(rewards))
+            }
+        }
+        else {
+            //Save to API for later use
+        }
     }
 })
