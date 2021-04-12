@@ -86,11 +86,23 @@ else {
    process.exit(1)
 }
 
+
+var username;
+var password;
+if (config.loginStorage === "env") {
+    username = process.env.mcUsername
+    password = process.env.mcPassword
+}
+else {
+    username = config.mcUsername
+    password = config.mcPassword
+}
+
 const mc = require('minecraft-protocol')
 var client = mc.createClient({
     host: "minehut.com",
-    username: process.env.mcUsername,
-    password: process.env.mcPassword,
+    username: username,
+    password: password,
     auth: 'mojang'
 })
 
