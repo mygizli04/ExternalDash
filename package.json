@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "chalk": "^4.1.0",
+    "minecraft-protocol": "^1.25.0",
     "request": "^2.88.2"
   }
 }
