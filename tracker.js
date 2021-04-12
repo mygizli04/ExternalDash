@@ -79,7 +79,7 @@ if (fs.existsSync('./config.json')) {
     }
 }
 else {
-    fs.writeFileSync('./config.json', JSON.stringify({loginStorage: "env", mode: "single", servers: [], mcUsername: "email@email.com", mcPassword: "yourPassword", authMode: "mojang", discord: false, discordThreshold: 1, discordMessageServer: "0000000000000000", minehutThreshold: 1, minehutCommands: []}, null, "\t"))
+    fs.writeFileSync('./config.json', JSON.stringify({loginStorage: "env", mode: "single", servers: [], mcUsername: "email@email.com", mcPassword: "yourPassword", authMode: "mojang", discord: false, discordThreshold: 1, discordMessageServer: "0000000000000000", discordBotToken: "00000000000000000000000000000000000000000000000000000000000", minehutThreshold: 1, minehutCommands: []}, null, "\t"))
     /*
     loginStorage: How the login info will be stored. Can be 'env' or 'config'.
     mode: How this instance will operate. Can be 'single' or 'server'.
@@ -167,7 +167,8 @@ client.on('chat', packet => {
             }
         }
         else {
-            //Save to API for later use
+            rewards[server][advertiser].count++
+            fs.writeFileSync('./rewards.json', JSON.stringify(rewards))
         }
     }
 })
