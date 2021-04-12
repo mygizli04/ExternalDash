@@ -123,3 +123,7 @@ skriptArchive
 
 #Plugins
 plugins
+
+#configs
+config.json
+rewards.json

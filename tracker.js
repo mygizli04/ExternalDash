@@ -9,19 +9,19 @@ if (fs.existsSync('./config.json')) {
     config = require('./config.json')
 
     //Checks
-    if (config.loginStorage !== "env" || config.loginStorage !== "config") {
+    if (config.loginStorage !== "env" && config.loginStorage !== "config") {
         console.log(chalk.redBright("Invalid config option."))
         debugger
         process.exit(1)
     }
 
-    if (config.loginStorage !== "single" || config.loginStorage !== "server") {
+    if (config.mode !== "single" && config.mode !== "server") {
         console.log(chalk.redBright("Invalid config option."))
         debugger
         process.exit(1)
     }
 
-    if (config.loginStorage === "single") {
+    if (config.mode === "single") {
         if (fs.existsSync('./rewards.json')) {
             rewards = require('./rewards.json')
         }
@@ -49,7 +49,7 @@ if (fs.existsSync('./config.json')) {
         process.exit(1)
     } 
 
-    if (!config.authmode) {
+    if (!config.authMode) {
         console.log(chalk.redBright("Invalid config option."))
         debugger
         process.exit(1)
@@ -65,21 +65,21 @@ if (fs.existsSync('./config.json')) {
             process.exit(1)
         }
 
-        if (config.discordMessageServer.length !== 16) {
+        if (config.discordMessageServer.length !== 18) {
             console.log(chalk.redBright("Invalid config option."))
             debugger
             process.exit(1)
         }
     }
     
-    if (config.loginStorage !== "single" || 1 > config.minehutThreshold) {
+    if (config.loginStorage !== "single" && 1 > config.minehutThreshold) {
         console.log(chalk.redBright("Invalid config option."))
         debugger
         process.exit(1)
     }
 }
 else {
-    fs.writeFileSync('./config.json', JSON.stringify({loginStorage: "env", mode: "single", servers: [], mcUsername: "email@email.com", mcPassword: "yourPassword", authMode: "mojang", discord: false, discordThreshold: 1, discordMessageServer: "0000000000000000", discordBotToken: "00000000000000000000000000000000000000000000000000000000000", minehutThreshold: 1, minehutCommands: []}, null, "\t"))
+    fs.writeFileSync('./config.json', JSON.stringify({loginStorage: "env", mode: "single", servers: [], mcUsername: "email@email.com", mcPassword: "yourPassword", authMode: "mojang", discord: false, discordThreshold: 1, discordMessageServer: "000000000000000000", discordBotToken: "00000000000000000000000000000000000000000000000000000000000", minehutThreshold: 1, minehutCommands: []}, null, "\t"))
     /*
     loginStorage: How the login info will be stored. Can be 'env' or 'config'.
     mode: How this instance will operate. Can be 'single' or 'server'.
@@ -139,7 +139,15 @@ client.on('chat', packet => {
             }
         }
         if (config.mode === "single") {
-            if (config.servers.includes(server)) {
+            if (/*config.servers.includes(server)*/ true) {
+                if (!rewards[server]) {
+                    rewards[server] = {}
+                }
+
+                if (!rewards[server][advertiser]) {
+                    rewards[server][advertiser] = {}
+                }
+
                 if (rewards[server][advertiser].count === config.minehutThreshold) {
                     minehut.servers.allData().then(servers => {
                         servers.forEach(remoteServer => {
@@ -153,7 +161,7 @@ client.on('chat', packet => {
                 }
 
                 if (rewards[server][advertiser].count === config.discordThreshold) {
-                    //Discord reward
+                    debugger
                 }
 
                 if (rewards[server][advertiser].count >= config.discordThreshold && rewards[server][advertiser].count >= config.minehutThreshold) {
