@@ -21,14 +21,38 @@ if (fs.existsSync('./config.json')) {
         process.exit(1)
     }
 
-    if (config.mode === "single") {
-        if (fs.existsSync('./rewards.json')) {
-            rewards = require('./rewards.json')
-        }
-        else {
-            rewards = {}
-            fs.writeFileSync('./rewards.json', "{}")
-        }
+    if (fs.existsSync('./rewards.json')) {
+        rewards = require('./rewards.json')
+    }
+    else {
+        rewards = {}
+        fs.writeFileSync('./rewards.json', "{}")
+    }
+
+    if (config.mode === "server") {
+        const express = require('express')
+        const app = express()
+        app.listen(8080)
+        
+        app.get('/', (req, res) => {
+            return res.send('How to use: /servername/username')
+        })
+        
+        app.get('/:userName', (req,res) => {
+            var userData = []
+            /*rewards.forEach((server) => {
+                if (server[req.params.userName]) {
+                    userData.push(server[req.params.userName])
+                }
+            })*/
+            Object.entries(rewards).forEach(reward => {
+                if (reward[1][req.params.userName]) {
+                    userData.push(reward[1][req.params.userName])
+                }
+            })
+            return res.send(JSON.stringify(userData))
+        })
+        
     }
 
     if (config.loginStorage === "single" && config.server.length < 1) {
@@ -144,15 +168,21 @@ client.on('chat', packet => {
                 message += packet.extra[i].text
             }
         }
-        if (config.mode === "single") {
-            if (config.servers.includes(server)) {
-                if (!rewards[server]) {
-                    rewards[server] = {}
-                }
 
-                if (!rewards[server][advertiser]) {
-                    rewards[server][advertiser] = {}
-                }
+        if (!rewards[server]) {
+            rewards[server] = {}
+        }
+
+        if (!rewards[server][advertiser]) {
+            rewards[server][advertiser] = {}
+        }
+
+        if (!rewards[server][advertiser].count) {
+            rewards[server][advertiser].count = 0
+        }
+
+        if (config.mode === "single") {
+                
 
                 if (rewards[server][advertiser].count === config.minehutThreshold) {
                     minehut.servers.allData().then(servers => {
@@ -169,7 +199,7 @@ client.on('chat', packet => {
                 if (rewards[server][advertiser].count === config.discordThreshold) {
                     discordClient.channels.fetch(config.discordMessageServer).then(channel => {
                         channel.send(new discord.MessageEmbed().setAuthor(advertiser, "https://minotar.net/helm/" + advertiser + "/256").addFields(
-                            {name: "Rank", value: rank},
+                            {name: "Rank", value: rank, inline: true},
                             {name: "Advertiser", value: advertiser, inline: true},
                             {name: "Server", value: server, inline: true},
                             {name: "Ad", value: "`" + message + "`"}
@@ -185,10 +215,16 @@ client.on('chat', packet => {
                 }
 
                 fs.writeFileSync('./rewards.json', JSON.stringify(rewards))
-            }
         }
         else {
             rewards[server][advertiser].count++
+            if (rewards[server][advertiser].lastAdvertised < new Date().getTime() - 86400000) {
+                rewards[server][advertiser].count = 0
+                rewards[server][advertiser].lastAdvertised = 0
+            }
+            else {
+                rewards[server][advertiser].lastAdvertised = new Date().getTime()
+            }
             fs.writeFileSync('./rewards.json', JSON.stringify(rewards))
         }
     }
