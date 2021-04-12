@@ -58,6 +58,12 @@ if (fs.existsSync('./config.json')) {
     if (config.discord) {
         discord = require('discord.js')
         discordClient = new discord.Client()
+        if (config.loginStorage === "env") {
+            discordClient.login(config.discordBotToken)
+        }
+        else {
+            discordClient.login(config.discordBotToken)
+        }
 
         if (typeof config.discordThreshold !== "number") {
             console.log(chalk.redBright("Invalid config option."))
@@ -139,7 +145,7 @@ client.on('chat', packet => {
             }
         }
         if (config.mode === "single") {
-            if (/*config.servers.includes(server)*/ true) {
+            if (config.servers.includes(server)) {
                 if (!rewards[server]) {
                     rewards[server] = {}
                 }
@@ -161,7 +167,14 @@ client.on('chat', packet => {
                 }
 
                 if (rewards[server][advertiser].count === config.discordThreshold) {
-                    debugger
+                    discordClient.channels.fetch(config.discordMessageServer).then(channel => {
+                        channel.send(new discord.MessageEmbed().setAuthor(advertiser, "https://minotar.net/helm/" + advertiser + "/256").addFields(
+                            {name: "Rank", value: rank},
+                            {name: "Advertiser", value: advertiser, inline: true},
+                            {name: "Server", value: server, inline: true},
+                            {name: "Ad", value: "`" + message + "`"}
+                        ))
+                    })
                 }
 
                 if (rewards[server][advertiser].count >= config.discordThreshold && rewards[server][advertiser].count >= config.minehutThreshold) {
