@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "chalk": "^4.1.0",
+    "discord.js": "^12.5.3",
+    "express": "^4.17.1",
+    "minecraft-protocol": "^1.25.0",
     "request": "^2.88.2"
   }
 }
