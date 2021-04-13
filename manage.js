@@ -124,7 +124,7 @@ function Start() {
                 data = isNumber(data)
                 if (data) {
                     data = data - 1
-                    if (0 <= data <= allData.length) {
+                    if ((0 <= data) && (data <= allData.length)) {
                         selected = data
                         onlineCheck()
                     }
@@ -190,7 +190,7 @@ function Start() {
                     console.log("[1] Skript")
                     console.log("[2] Plugins")
                     process.stdin.once('data', data => {
-                        if (1 <= data <= 2) { //Minimum acceptable option <= data <= Maximum acceptable option
+                        if ((1 <= data) && (data <= 2)) { //Minimum acceptable option <= data <= Maximum acceptable option
                             data = parseInt(data)
                             switch(data) {
                                 case 1:
@@ -582,7 +582,7 @@ function Start() {
                                                             console.log("[" + (index + 1) + "] " + plugin.name)
                                                         })
 
-                                                        waitForInput(input => {return 0 <= input <= installedPlugins.length}, "Which plugin would you like to uninstall? ").then(input => {
+                                                        waitForInput(input => {return numCheck(input,0,installedPlugins.length)}, "Which plugin would you like to uninstall? ").then(input => {
                                                             input = parseInt(input.trim())
                                                             if (input === 0) {
                                                                 waitForInput(input => {return (input.trim().toUpperCase() == "Y") || (input.trim().toUpperCase() == "N")}, "Are you sure? " + chalk.redBright("THIS WILL REMOVE ALL YOUR PLUGINS") + " (Y/N) ").then(input => {
@@ -637,7 +637,7 @@ function Start() {
                                                             console.log("[" + (index + 1) + "] " + plugin.name)
                                                         })
 
-                                                        waitForInput(input => {return 0 <= input <= installedPlugins.length}, "Which plugin would you like to reset? ").then(input => {
+                                                        waitForInput(input => {return numCheck(input, 0, installedPlugins.length)}, "Which plugin would you like to reset? ").then(input => {
                                                             input = parseInt(input.trim())
                                                             if (input === 0) {
                                                                 waitForInput(input => {return (input.trim().toUpperCase() == "Y") || (input.trim().toUpperCase() == "N")}, "Are you sure? " + chalk.redBright("THIS WILL REMOVE ALL YOUR PLUGIN DATA") + " (Y/N) ").then(input => {
@@ -694,7 +694,7 @@ function Start() {
                                                                         process.exit(1)
                                                                     }
     
-                                                                    if (0 <= input <= dir.length) {
+                                                                    if ((0 <= input) && (input <= dir.length)) {
                                                                         if (input === 0) {
                                                                             downloadRecursively("./plugins", "/plugins", servers[selected]._id)
                                                                         }
@@ -726,7 +726,7 @@ function Start() {
                                                                         process.exit(1)
                                                                     }
     
-                                                                    if (0 <= input <= dir.length) {
+                                                                    if ((0 <= input) && (input <= dir.length)) {
                                                                         if (input === 0) {
                                                                             uploadRecursively("./plugins", "/plugins", servers[selected]._id)
                                                                         }
