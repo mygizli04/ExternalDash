@@ -39,7 +39,7 @@ if (fs.existsSync('./config.json')) {
         })
 
         app.get('/:server', (req,res) => {
-            if (server === "*") {
+            if (req.params.server === "*") {
                 return res.send(JSON.stringify(rewards))
             }
             else {
@@ -212,6 +212,9 @@ client.on('chat', packet => {
                     rewards[server][advertiser].count++
                 }
 
+                rewards[server][advertiser].rank = rank
+                rewards[server][advertiser].lastAd = message
+
                 fs.writeFileSync('./rewards.json', JSON.stringify(rewards))
         }
         else {
@@ -223,6 +226,8 @@ client.on('chat', packet => {
             else {
                 rewards[server][advertiser].lastAdvertised = new Date().getTime()
             }
+            rewards[server][advertiser].rank = rank
+            rewards[server][advertiser].lastAd = message
             fs.writeFileSync('./rewards.json', JSON.stringify(rewards))
         }
     }
