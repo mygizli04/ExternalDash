@@ -19,7 +19,9 @@ exports.requestRaw = async function (path, method, headers, body) {
     }
 
     if (!path) {
-        return new Promise().reject("'path' is not defined.")
+        return new Promise((resolve,reject) => {
+            reject("'path' is not defined.")
+        })
     }
 
     if (!body) {
