@@ -81,10 +81,13 @@ if (fs.existsSync('./config.json')) {
         discord = require('discord.js')
         discordClient = new discord.Client()
         if (config.loginStorage === "env") {
+            discordClient.login(process.env.discordBotToken)
+        }
+        else if (config.loginStorage === "config") {
             discordClient.login(config.discordBotToken)
         }
         else {
-            discordClient.login(config.discordBotToken)
+            console.error("Invalid config value!")
         }
 
         if (typeof config.discordThreshold !== "number") {
@@ -162,7 +165,7 @@ client.on('chat', packet => {
         let server = packet.extra[2].text.substring(6, packet.extra[2].text.indexOf(" ", 6))
         let message = packet.extra[2].text.substring(7 + server.length)
         if (packet.extra.length > 3) {
-            for (i = 3; i < packet.extra.length; i++) {
+            for (let i = 3; i < packet.extra.length; i++) {
                 message += packet.extra[i].text
             }
         }
