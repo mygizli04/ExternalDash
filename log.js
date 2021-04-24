@@ -127,7 +127,7 @@ function Start() {
                 data = isNumber(data)
                 if (data) {
                     data = data - 1
-                    if (0 <= data <= allData.length) {
+                    if ((0 <= data) && (data <= allData.length)) {
                         selected = data
                         onlineCheck()
                     }
